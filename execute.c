@@ -10,28 +10,28 @@
  */
 void execute_command(char *command)
 {
-	pid_t pid;
-	int status;
+    pid_t pid;
+    int status;
 
-	pid = fork();
+    pid = fork();
 
-	if (pid == -1)
-	{
-		perror("Error forking");
-		return;
-	}
-	else if (pid == 0)
-	{
-		char *args[] = {command, NULL};
+    if (pid == -1)
+    {
+        perror("Error:");
+        return;
+    }
+    else if (pid == 0)
+    {
+        char *args[] = {command, NULL};
 
-		if (execve(command, args, NULL) == -1)
-		{
-			perror("Error executing command");
-			exit(EXIT_FAILURE);
-		}
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
+        if (execve(command, args, environ) == -1)
+        {
+            printf("%s: No such file or directory\n", command);
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        wait(&status);
+    }
 }
