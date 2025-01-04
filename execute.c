@@ -12,30 +12,36 @@
  */
 void execute_command(char *command, char *program_name)
 {
-	pid_t pid;
-	int status;
+    pid_t pid;
+    int status;
 
-	pid = fork();
+    if (command == NULL || *command == '\0')
+    {
+        fprintf(stderr, "%s: command cannot be empty\n", program_name);
+        return;
+    }
 
-	if (pid == -1)
-	{
-		perror(program_name);
-		return;
-	}
-	else if (pid == 0)
-	{
-		char *args[2];
+    pid = fork();
+
+    if (pid == -1)
+    {
+        perror(program_name);
+        return;
+    }
+    else if (pid == 0)
+    {
+        char *args[2];
         args[0] = command;
         args[1] = NULL;
 
-		if (execve(command, args, environ) == -1)
-		{
-			fprintf(stderr, "%s: 1: %s: not found\n", program_name, command);
-			exit(127);
-		}
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
+        if (execve(command, args, environ) == -1)
+        {
+            fprintf(stderr, "%s: 1: %s: not found\n", program_name, command);
+            exit(127);
+        }
+    }
+    else
+    {
+        waitpid(pid, &status, 0);
+    }
 }
