@@ -3,23 +3,21 @@
 /**
  * execute_input - Execute the user input
  * @input: The user input string
- * 
+ *
  * Return: 0 on success, -1 on exit command
  */
 int execute_input(char *input)
 {
-    char **args;
-    int status;
-
     if (strchr(input, '|'))
     {
-        return execute_pipeline(input);
+        return (execute_pipeline(input));
     }
     else
     {
-        char **args = parse_command(input);
+        char **args;
         int status;
 
+        args = parse_command(input);
         if (args[0] == NULL)
         {
             free(args);
