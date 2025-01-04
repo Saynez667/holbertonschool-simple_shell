@@ -1,41 +1,30 @@
 #include "shell.h"
 
 /**
- * execute_command - Executes the given command
- * @command: The command to execute
- * @program_name: Name of the shell program (argv[0])
+ * execute_command - Executes a command in a child process
+ * @cmd: The command to execute
  *
- * Description: This function creates a child process using fork() and
- * executes the given command using execve(). The parent process waits
- * for the child to complete using waitpid(). It handles errors and
- * provides appropriate error messages.
+ * Description: This function creates a child process using fork() and uses
+ * execve() to execute the command. If the execution fails, an error message
+ * is displayed. The parent process waits for the child to complete.
  */
-void execute_command(char *command, char *program_name)
+void execute_command(char *cmd)
 {
-	pid_t pid;
-	int status;
+    pid_t pid = fork();  /* Créer un processus enfant */
 
-	pid = fork();
+    if (pid == -1) {
+        handle_error("fork");
+        return;
+    }
 
-	if (pid == -1)
-	{
-		perror(program_name);
-		return;
-	}
-	else if (pid == 0)
-	{
-		char *args[2];
-        args[0] = command;
-        args[1] = NULL;
-
-		if (execve(command, args, environ) == -1)
-		{
-			fprintf(stderr, "%s: 1: %s: not found\n", program_name, command);
-			exit(127);
-		}
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
+    if (pid == 0) {  /* Processus enfant */
+        char *args[] = {cmd, NULL};  /* Pas d'arguments à passer */
+        if (execve(cmd, args, environ) == -1) {
+            handle_error("execve");
+            exit(EXIT_FAILURE);  /* En cas d'échec, quitter l'enfant */
+        }
+    } else {  /* Processus parent */
+        int status;
+        waitpid(pid, &status, 0);  /* Attendre la fin du processus enfant */
+    }
 }
