@@ -7,9 +7,15 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <errno.h>
 
-extern char **environ;
+#define MAX_CMD_LEN 1024
 
-void execute_command(char *command, char *program_name);
+/* Déclaration des fonctions */
+void display_prompt(void);
+void handle_error(const char *msg);
+void execute_command(char *cmd);
 
 #endif /* SHELL_H */
