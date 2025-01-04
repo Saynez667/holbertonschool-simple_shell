@@ -22,8 +22,8 @@ int execute_input(char *input)
 
     if (strcmp(command, "exit") == 0)
     {
-        free(command);  // Free memory if parse_command allocates it
-        return (-1);  // Signal to exit the shell
+        free(command);
+        return (-1);
     }
 
     result = execute_command(command);
@@ -32,6 +32,6 @@ int execute_input(char *input)
         fprintf(stderr, "%s: command not found\n", command);
     }
 
-    free(command);  // Free memory if parse_command allocates it
+    free(command);
     return (result);
 }
