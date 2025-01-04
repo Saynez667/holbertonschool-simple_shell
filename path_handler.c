@@ -3,8 +3,16 @@
 /**
  * find_executable - Find the full path of an executable
  * @cmd: The command to find
- * 
- * Return: The full path of the executable, or NULL if not found
+ *
+ * Description: This function searches for the full path of an executable
+ * command in the directories specified by the PATH environment variable.
+ * It iterates through each directory in PATH, constructs the full path,
+ * and checks if the file exists and is executable.
+ *
+ * Return: A dynamically allocated string containing the full path of the
+ * executable if found, or NULL if the executable is not found in any
+ * directory in PATH. The caller is responsible for freeing the returned
+ * string.
  */
 char *find_executable(char *cmd)
 {
