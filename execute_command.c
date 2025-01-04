@@ -33,7 +33,7 @@ int execute_command(char *command)
 	{
 		/* Error forking */
 		perror("fork");
-		return (1);
+		return (-1);
 	}
 	else
 	{
@@ -41,7 +41,7 @@ int execute_command(char *command)
 		if (waitpid(pid, &status, 0) == -1)
 		{
 			perror("waitpid");
-			return (1);
+			return (-1);
 		}
 	}
 
