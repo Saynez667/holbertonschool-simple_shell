@@ -3,9 +3,16 @@
 /**
  * execute_builtin - Execute built-in shell commands
  * @args: Array of command arguments
+ * Description: This function handles the execution of built-in shell commands.
+ * It supports three commands: 'cd', 'exit', and 'env'.
+ * 'cd': Changes the current directory. Prints an error if no argument
+ * is provided or if the directory change fails.
+ * 'exit': Signals the shell to terminate.
+ * 'env': Prints all environment variables.
  * 
- * Return: 0 if the command is a built-in, 1 otherwise
- */
+ * Return: 0 if the command is a built-in and was executed, -1 if the command is 'exit',
+ * 1 if the command is not a built-in
+*/
 int execute_builtin(char **args)
 {
     char **env;
