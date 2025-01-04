@@ -18,7 +18,6 @@ int main(int argc, char **argv)
 	size_t n = 0;
 	ssize_t nchars_read;
 	(void)argc;
-	(void)argv;
 
 	while (1)
 	{
