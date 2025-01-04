@@ -14,13 +14,15 @@ int execute_command(char *command)
 {
 	pid_t pid;
 	int status;
+	char *args[2];
+
+	args[0] = command;
+	args[1] = NULL;
 
 	pid = fork();
 	if (pid == 0)
 	{
 		/* Child process */
-		char *args[] = {command, NULL};
-
 		if (execve(command, args, environ) == -1)
 		{
 			perror(command);
