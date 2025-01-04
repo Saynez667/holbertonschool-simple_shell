@@ -25,31 +25,30 @@ int main(void)
             if (feof(stdin))
             {
                 printf("\n");
-                break;  // Handle Ctrl+D (EOF)
+                break;
             }
             else
             {
                 perror("getline");
+                free(input);
                 exit(EXIT_FAILURE);
             }
         }
 
-        // Remove newline character
         input[strcspn(input, "\n")] = 0;
 
-        // Check if the command is "exit"
-        if (strcmp(input, "exit") == 0)
-        {
-            break;  // Exit the shell
-        }
+        if (input[0] == '\0')
+            continue;
 
-        // Execute the command
-        if (execute_command(input) == -1)
+        if (strcmp(input, "exit") == 0)
+            break;
+
+        if (execute_input(input) == -1)
         {
             fprintf(stderr, "%s: command not found\n", input);
         }
     }
 
     free(input);
-    return 0;
+    return (0);
 }
