@@ -94,7 +94,7 @@ git clone https://github.com/Saynez667/holbertonschool-simple_shell
 
 2. To compile the program, this command has to be executed :
 ```bash
-$ gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o shell
+$ gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o simple_shell
 ```
 3. This will create a compilation file. You can run the shell in your terminal by using this command :
 ```bash
