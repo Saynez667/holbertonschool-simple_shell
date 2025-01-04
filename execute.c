@@ -24,7 +24,9 @@ void execute_command(char *command, char *program_name)
 	}
 	else if (pid == 0)
 	{
-		char *args[] = {command, NULL};
+		char *args[2];
+        args[0] = command;
+        args[1] = NULL;
 
 		if (execve(command, args, environ) == -1)
 		{
