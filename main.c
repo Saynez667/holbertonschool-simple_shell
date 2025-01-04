@@ -11,29 +11,30 @@
  */
 int main(void)
 {
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
+    char *lineptr = NULL;
+    size_t n = 0;
+    ssize_t nchars_read;
 
     while (1)
     {
         printf("$ ");
-        read = getline(&line, &len, stdin);
+        fflush(stdout);
+        nchars_read = getline(&lineptr, &n, stdin);
 
-        if (read == -1)
+        if (nchars_read == -1)
         {
             printf("\n");
             break;
         }
 
-        line[strcspn(line, "\n")] = '\0';
+        lineptr[strcspn(lineptr, "\n")] = '\0';
 
-        if (strlen(line) == 0)
+        if (strlen(lineptr) == 0)
             continue;
 
-        execute_command(line);
+        execute_command(lineptr);
     }
 
-    free(line);
+    free(lineptr);
     return (0);
 }
