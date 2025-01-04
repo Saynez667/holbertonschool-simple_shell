@@ -14,6 +14,8 @@ int main(void)
     size_t input_size = 0;
     ssize_t read_size;
 
+    signal(SIGINT, sigint_handler); 
+
     while (1)
     {
         printf("$ ");
