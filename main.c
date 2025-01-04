@@ -31,9 +31,6 @@ int main(void)
         if (strlen(line) == 0)
             continue;
 
-        if (strcmp(line, "exit") == 0)
-            break;
-
         execute_command(line);
     }
 
