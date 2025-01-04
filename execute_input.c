@@ -4,36 +4,19 @@
  * execute_input - Execute the user input
  * @input: The user input string
  *
- * Return: 0 on success, -1 on exit command
+ * Description: This function takes the user input, parses it to extract
+ * the command, and then executes the command.
+ *
+ * Return: 0 on success, -1 on failure
  */
 int execute_input(char *input)
 {
-    if (strchr(input, '|'))
-    {
-        return (execute_pipeline(input));
-    }
-    else
-    {
-        char **args;
-        int status;
+	char *command = parse_command(input);
 
-        args = parse_command(input);
-        if (args[0] == NULL)
-        {
-            free(args);
-            return (0);
-        }
+	if (command == NULL)
+	{
+		return (0);
+	}
 
-        handle_redirection(args);
-
-        if (execute_builtin(args) == 0)
-        {
-            free(args);
-            return (0);
-        }
-
-        status = execute_external(args);
-        free(args);
-        return (status);
-    }
+	return (execute_command(command));
 }
