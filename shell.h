@@ -14,16 +14,16 @@
 extern char **environ;
 
 /*PROTOTYPES*/
-int execute(char **args);
-int _strcmp(const char *s1, const char *s2);
-void _env(void);
-int empty_line(const char *buff);
-char **tokenize(char *buff);
-char *search_path(char *command);
+int _strcmp(char *s1, char *s2);
 char *_strcpy(char *dest, char *src);
+char *search_path(char *command);
 char **_split(char *str, char *sep);
 char *_strcat(char *dest, char *src);
 int _strlen(char *s);
 char *_getenv(char *env_var);
+void *_calloc(unsigned int nmemb, unsigned int size);
+void _env(void);
+int execute(char **args);
+int empty_line(char *buff);
 
 #endif
