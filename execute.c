@@ -14,57 +14,28 @@ int execute(char *line_input)
 
     args = tokenize(line_input);
     if (args == NULL)
-        return (-1); /* Return -1 if tokenization fails */
+        return (-1);
 
-    if (args[0][0] == '/')
+    pid = fork();
+    if (pid < 0)
     {
-        /* Handle absolute path execution */
-        pid = fork();
-        if (pid < 0)
+        perror("fork");
+        free_tokens(args);
+        return (-1);
+    }
+    else if (pid == 0)
+    {
+        if (execvp(args[0], args) == -1)
         {
-            perror("fork");
-            free_tokens(args);
-            return (-1);
-        }
-        else if (pid == 0)
-        {
-            if (execve(args[0], args, environ) == -1)
-            {
-                perror("execve");
-                exit(EXIT_FAILURE);
-            }
-        }
-        else
-        {
-            wait(&status);
-            if (WIFEXITED(status))
-                exit_stat = WEXITSTATUS(status);
+            perror("execvp");
+            exit(EXIT_FAILURE);
         }
     }
     else
     {
-        /* Handle command execution using PATH */
-        pid = fork();
-        if (pid < 0)
-        {
-            perror("fork");
-            free_tokens(args);
-            return (-1);
-        }
-        else if (pid == 0)
-        {
-            if (execvp(args[0], args) == -1)
-            {
-                perror("execvp");
-                exit(EXIT_FAILURE);
-            }
-        }
-        else
-        {
-            wait(&status);
-            if (WIFEXITED(status))
-                exit_stat = WEXITSTATUS(status);
-        }
+        wait(&status);
+        if (WIFEXITED(status))
+            exit_stat = WEXITSTATUS(status);
     }
 
     free_tokens(args);

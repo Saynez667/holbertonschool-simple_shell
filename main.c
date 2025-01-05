@@ -27,7 +27,6 @@ int main(void)
             break;
         }
 
-        /* Remove newline character */
         line_input[strcspn(line_input, "\n")] = 0;
 
         if (strcmp(line_input, "exit") == 0)
