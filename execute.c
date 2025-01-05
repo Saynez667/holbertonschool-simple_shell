@@ -8,6 +8,10 @@ void execute(char *command)
 {
     pid_t pid;
     int status;
+    char *args[2];
+
+    args[0] = command;
+    args[1] = NULL;
 
     pid = fork();
     if (pid == -1)
@@ -17,7 +21,7 @@ void execute(char *command)
     }
     if (pid == 0)
     {
-        if (execve(command, (char *[]){command, NULL}, environ) == -1)
+        if (execve(command, args, environ) == -1)
         {
             printf("%s: No such file or directory\n", command);
             exit(EXIT_FAILURE);
@@ -28,3 +32,4 @@ void execute(char *command)
         wait(&status);
     }
 }
+
