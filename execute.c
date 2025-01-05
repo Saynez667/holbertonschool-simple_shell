@@ -3,35 +3,36 @@
 /**
  * execute - Execute a single command
  * @command: The command to execute
+ *
+ * Return: 0 on success, -1 on failure
  */
-void execute(char *command)
+int execute(char *command)
 {
     pid_t pid;
     int status;
-    char *args[2];
+    char *argv[2];
 
-    args[0] = command;
-    args[1] = NULL;
+    argv[0] = command;
+    argv[1] = NULL;
 
     pid = fork();
     if (pid == -1)
     {
         perror("./hsh");
-        return;
+        return (-1);
     }
     if (pid == 0)
     {
-        if (execve(command, args, environ) == -1)
+        if (execve(command, argv, environ) == -1)
         {
-            write(STDERR_FILENO, "./hsh: 1: ", 10);
-            write(STDERR_FILENO, command, strlen(command));
-            write(STDERR_FILENO, ": not found\n", 12);
-            exit(EXIT_FAILURE);
+            return (-1);
         }
     }
     else
     {
         wait(&status);
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+            return (-1);
     }
+    return (0);
 }
-
