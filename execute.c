@@ -6,33 +6,27 @@
  *
  * Return: 0 on success, -1 on failure
  */
-int execute(char *command)
+/**
+ * execute - execute command path, child process
+ * @args: arguments
+ * Return: exit status
+ */
+
+int execute(char **args)
 {
-    pid_t pid;
-    int status;
-    char *argv[2];
+	int id = fork(), status;
 
-    argv[0] = command;
-    argv[1] = NULL;
+	if (id == 0)
+	{
+		if (execve(args[0], args, environ) == -1)
+			perror("Error");
+	}
+	else
+	{
+		wait(&status);
+		if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
+	}
 
-    pid = fork();
-    if (pid == -1)
-    {
-        perror("./hsh");
-        return (-1);
-    }
-    if (pid == 0)
-    {
-        if (execve(command, argv, environ) == -1)
-        {
-            return (-1);
-        }
-    }
-    else
-    {
-        wait(&status);
-        if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-            return (-1);
-    }
-    return (0);
+	return (status);
 }

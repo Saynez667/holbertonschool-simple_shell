@@ -1,48 +1,47 @@
 #include "shell.h"
 
 /**
- * main - Simple UNIX command line interpreter
- *
- * Return: 0 on success
+ * main - open shell, project base
+ * Return: int
  */
+
 int main(void)
 {
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
-    int status;
+	char *buff = NULL, **args;
+	size_t read_size = 0;
+	ssize_t buff_size = 0;
+	int exit_status = 0;
 
-    while (1)
-    {
-        if (isatty(STDIN_FILENO))
-            write(STDOUT_FILENO, "$ ", 2);
+	while (1)
+	{
+		if (isatty(0))
+			printf("hsh$ ");
 
-        read = getline(&line, &len, stdin);
-        if (read == -1)
-        {
-            if (feof(stdin))
-            {
-                free(line);
-                exit(EXIT_SUCCESS);
-            }
-            else
-            {
-                perror("./hsh");
-                free(line);
-                exit(EXIT_FAILURE);
-            }
-        }
+		buff_size = getline(&buff, &read_size, stdin);
+		if (buff_size == -1 || _strcmp("exit\n", buff) == 0)
+		{
+			free(buff);
+			break;
+		}
+		buff[buff_size - 1] = '\0';
 
-        line[strcspn(line, "\n")] = 0;
+		if (_strcmp("env", buff) == 0)
+		{
+			_env();
+			continue;
+		}
 
-        if (strlen(line) == 0)
-            continue;
+		if (empty_line(buff) == 1)
+		{
+			exit_status = 0;
+			continue;
+		}
 
-        status = execute(line);
-        if (status == -1)
-            fprintf(stderr, "./hsh: 1: %s: not found\n", line);
-    }
-
-    free(line);
-    return (0);
+		if (args[0] != NULL)
+			exit_status = execute(args);
+		else
+			perror("Error");
+		free(args);
+	}
+	return (exit_status);
 }

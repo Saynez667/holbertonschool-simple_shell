@@ -8,8 +8,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+/* GLOBAL VAR*/
 extern char **environ;
 
-int execute(char *command);
+/*PROTOTYPES*/
+int execute(char **args);
 
-#endif /* SHELL_H */
+#endif
