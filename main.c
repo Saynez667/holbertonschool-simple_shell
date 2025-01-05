@@ -4,44 +4,44 @@
  * main - open shell, project base
  * Return: int
  */
-
 int main(void)
 {
-	char *buff = NULL, **args;
-	size_t read_size = 0;
-	ssize_t buff_size = 0;
-	int exit_status = 0;
+    char *buff = NULL, **args;
+    size_t read_size = 0;
+    ssize_t buff_size = 0;
+    int exit_status = 0;
 
-	while (1)
-	{
-		if (isatty(0))
-			printf("hsh$ ");
+    while (1)
+    {
+        if (isatty(STDIN_FILENO))
+            printf("hsh$ ");
 
-		buff_size = getline(&buff, &read_size, stdin);
-		if (buff_size == -1 || _strcmp("exit\n", buff) == 0)
-		{
-			free(buff);
-			break;
-		}
-		buff[buff_size - 1] = '\0';
+        buff_size = getline(&buff, &read_size, stdin);
+        if (buff_size == -1 || _strcmp("exit\n", buff) == 0)
+        {
+            free(buff);
+            break;
+        }
+        buff[buff_size - 1] = '\0';
 
-		if (_strcmp("env", buff) == 0)
-		{
-			_env();
-			continue;
-		}
+        if (_strcmp("env", buff) == 0)
+        {
+            _env();
+            continue;
+        }
 
-		if (empty_line(buff) == 1)
-		{
-			exit_status = 0;
-			continue;
-		}
+        if (empty_line(buff) == 1)
+        {
+            exit_status = 0;
+            continue;
+        }
 
-		if (args[0] != NULL)
-			exit_status = execute(args);
-		else
-			perror("Error");
-		free(args);
-	}
-	return (exit_status);
+        args = tokenize(buff);  // Add this line to tokenize the input
+        if (args[0] != NULL)
+            exit_status = execute(args);
+        else
+            perror("Error");
+        free(args);
+    }
+    return (exit_status);
 }

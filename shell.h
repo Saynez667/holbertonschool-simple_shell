@@ -13,5 +13,9 @@ extern char **environ;
 
 /*PROTOTYPES*/
 int execute(char **args);
+int _strcmp(const char *s1, const char *s2);
+void _env(void);
+int empty_line(const char *buff);
+char **tokenize(char *buff);
 
 #endif
