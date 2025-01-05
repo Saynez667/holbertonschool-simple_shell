@@ -36,7 +36,7 @@ int main(void)
             continue;
         }
 
-        args = tokenize(buff);  // Add this line to tokenize the input
+        args = tokenize(buff);  /* Tokenize the input */
         if (args[0] != NULL)
             exit_status = execute(args);
         else

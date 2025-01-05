@@ -13,11 +13,11 @@ int execute(char **args)
     {
         if (execve(args[0], args, environ) == -1)
             perror("Error");
-        exit(EXIT_FAILURE);  // Add this line to exit child process on error
+        exit(EXIT_FAILURE);  /* Exit child process on error */
     }
     else if (id < 0)
     {
-        perror("Error");  // Add error handling for fork failure
+        perror("Error");  /* Error handling for fork failure */
         return -1;
     }
     else
