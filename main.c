@@ -1,9 +1,5 @@
 #include "shell.h"
 
-/**
- * main - open shell, project base
- * Return: int
- */
 int main(void)
 {
     char *buff = NULL, **args;
@@ -24,7 +20,7 @@ int main(void)
         }
         buff[buff_size - 1] = '\0';
 
-        if (_strcmp("env", buff) == 0)
+        if (_strcmp("_env", buff) == 0)
         {
             _env();
             continue;
@@ -36,12 +32,22 @@ int main(void)
             continue;
         }
 
-        args = tokenize(buff);  /* Tokenize the input */
+        args = tokenize(buff);
         if (args[0] != NULL)
-            exit_status = execute(args);
-        else
-            perror("Error");
+        {
+            char *cmd_path = search_path(args[0]);
+            if (cmd_path)
+            {
+                args[0] = cmd_path;
+                exit_status = execute(args);
+                if (cmd_path != args[0])
+                    free(cmd_path);
+            }
+            else
+                fprintf(stderr, "hsh: %s: command not found\n", args[0]);
+        }
         free(args);
     }
+    free(buff);
     return (exit_status);
 }

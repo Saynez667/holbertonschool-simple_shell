@@ -20,5 +20,10 @@ void _env(void);
 int empty_line(const char *buff);
 char **tokenize(char *buff);
 char *search_path(char *command);
+char *_strcpy(char *dest, char *src);
+char **_split(char *str, char *sep);
+char *_strcat(char *dest, char *src);
+int _strlen(char *s);
+char *_getenv(char *env_var);
 
 #endif
