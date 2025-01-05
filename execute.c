@@ -1,30 +1,72 @@
 #include "shell.h"
 
 /**
- * execute_command - Executes a command in a child process
- * @cmd: The command to execute
+ * execute - Executes a command
+ * @line_input: Line input from the user
  *
- * Description: This function creates a child process using fork() and uses
- * execve() to execute the command. If the execution fails, an error message
- * is displayed. The parent process waits for the child to complete.
+ * Return: exit_stat (0 on success or -1 on error)
  */
-void execute_command(char *cmd)
+int execute(char *line_input)
 {
-    pid_t pid = fork();  /* Créer un processus enfant */
+    char **args = NULL;
+    pid_t pid;
+    int status, exit_stat = 0;
 
-    if (pid == -1) {
-        handle_error("fork");
-        return;
-    }
+    args = tokenize(line_input);
+    if (args == NULL)
+        return (-1); /* Return -1 if tokenization fails */
 
-    if (pid == 0) {  /* Processus enfant */
-        char *args[] = {cmd, NULL};  /* Pas d'arguments à passer */
-        if (execve(cmd, args, environ) == -1) {
-            handle_error("execve");
-            exit(EXIT_FAILURE);  /* En cas d'échec, quitter l'enfant */
+    if (args[0][0] == '/')
+    {
+        /* Handle absolute path execution */
+        pid = fork();
+        if (pid < 0)
+        {
+            perror("fork");
+            free_tokens(args);
+            return (-1);
         }
-    } else {  /* Processus parent */
-        int status;
-        waitpid(pid, &status, 0);  /* Attendre la fin du processus enfant */
+        else if (pid == 0)
+        {
+            if (execve(args[0], args, environ) == -1)
+            {
+                perror("execve");
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            wait(&status);
+            if (WIFEXITED(status))
+                exit_stat = WEXITSTATUS(status);
+        }
     }
+    else
+    {
+        /* Handle command execution using PATH */
+        pid = fork();
+        if (pid < 0)
+        {
+            perror("fork");
+            free_tokens(args);
+            return (-1);
+        }
+        else if (pid == 0)
+        {
+            if (execvp(args[0], args) == -1)
+            {
+                perror("execvp");
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            wait(&status);
+            if (WIFEXITED(status))
+                exit_stat = WEXITSTATUS(status);
+        }
+    }
+
+    free_tokens(args);
+    return (exit_stat);
 }

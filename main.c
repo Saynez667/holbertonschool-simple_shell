@@ -1,49 +1,46 @@
 #include "shell.h"
 
 /**
- * main - Entry point for the simple shell
+ * main - Entry point
  *
- * Description: This function implements the main loop for a simple shell.
- * It continuously prompts the user for input, reads commands, and executes
- * them if they are valid executable files. The loop continues until an EOF
- * is encountered (Ctrl+D) or an error occurs.
- *
- * Return: Always 0 (Success)
+ * Return: 0 (On success) or -1 (on error)
  */
+
 int main(void)
 {
-    char *cmd = NULL;
-    size_t len = 0;
+	char *line_input = NULL;
+	int ex = 0, r;
+	size_t bufsize = 0;
 
-    while (1) {
-        display_prompt();  /* Afficher le prompt */
+	while (1)
+	{
+		if (isatty(STDIN_FILENO))
+			printf("simpleshell$ ");
 
-        /* Lire la commande entrée par l'utilisateur */
-        if (getline(&cmd, &len, stdin) == -1) {
-            if (feof(stdin)) {
-                /* Si EOF (Ctrl+D), quitter le shell */
-                printf("\nExiting shell...\n");
-                break;
-            }
-            handle_error("getline");
-            continue;
-        }
+		signal(SIGINT, signal_handler);
 
-        /* Supprimer le caractère de nouvelle ligne à la fin de la commande */
-        cmd[strcspn(cmd, "\n")] = '\0';
+		r = getline(&line_input, &bufsize, stdin);
+		if (r == -1)
+		{
+			if (feof(stdin))
+				printf("\n");
+			break;
+		}
 
-        if (strlen(cmd) == 0) {
-            continue;  /* Si la commande est vide, recommencer */
-        }
+		if (strcmp(line_input, "exit\n") == 0)
+			break;
 
-        /* Vérifier si la commande est un fichier exécutable et l'exécuter */
-        if (access(cmd, X_OK) == 0) {
-            execute_command(cmd);
-        } else {
-            fprintf(stderr, "Error: command not found: %s\n", cmd);
-        }
-    }
+		if (strcmp(line_input, "env\n") == 0)
+		{
+			print_env();
+			continue;
+		}
 
-    free(cmd);  /* Libérer la mémoire allouée pour la commande */
-    return (0);
+		ex = execute(line_input);
+		if (ex == -1)
+			perror("Execution error");
+	}
+
+	free(line_input);
+	return (ex);
 }

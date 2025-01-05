@@ -3,19 +3,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/wait.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <signal.h>
 
-#define MAX_CMD_LEN 1024
+extern char **environ;
 
 /* Déclaration des fonctions */
-void display_prompt(void);
-void handle_error(const char *msg);
-void execute_command(char *cmd);
+int main(void);
+int execute(char *line_input);
+void signal_handler(int signal);
 
 #endif /* SHELL_H */
