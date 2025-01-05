@@ -1,43 +1,30 @@
 #include "shell.h"
 
 /**
- * execute - Executes a command
- * @line_input: Line input from the user
- *
- * Return: exit_stat (0 on success or -1 on error)
+ * execute - Execute a single command
+ * @command: The command to execute
  */
-int execute(char *line_input)
+void execute(char *command)
 {
-    char **args = NULL;
     pid_t pid;
-    int status, exit_stat = 0;
-
-    args = tokenize(line_input);
-    if (args == NULL)
-        return (-1);
+    int status;
 
     pid = fork();
-    if (pid < 0)
+    if (pid == -1)
     {
         perror("fork");
-        free_tokens(args);
-        return (-1);
+        return;
     }
-    else if (pid == 0)
+    if (pid == 0)
     {
-        if (execvp(args[0], args) == -1)
+        if (execve(command, (char *[]){command, NULL}, environ) == -1)
         {
-            perror("execvp");
+            printf("%s: No such file or directory\n", command);
             exit(EXIT_FAILURE);
         }
     }
     else
     {
         wait(&status);
-        if (WIFEXITED(status))
-            exit_stat = WEXITSTATUS(status);
     }
-
-    free_tokens(args);
-    return (exit_stat);
 }

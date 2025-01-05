@@ -1,50 +1,46 @@
 #include "shell.h"
 
 /**
- * main - Entry point
+ * main - Simple UNIX command line interpreter
  *
- * Return: 0 (On success) or -1 (on error)
+ * Return: 0 on success
  */
 int main(void)
 {
-    char *line_input = NULL;
-    int ex = 0, r;
-    size_t bufsize = 0;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
 
     while (1)
     {
         if (isatty(STDIN_FILENO))
-            printf("simpleshell$ ");
+            printf("$ ");
 
-        signal(SIGINT, signal_handler);
-
-        r = getline(&line_input, &bufsize, stdin);
-        if (r == -1)
+        read = getline(&line, &len, stdin);
+        if (read == -1)
         {
             if (feof(stdin))
+            {
                 printf("\n");
-            free(line_input);
-            break;
+                free(line);
+                exit(EXIT_SUCCESS);
+            }
+            else
+            {
+                perror("getline");
+                free(line);
+                exit(EXIT_FAILURE);
+            }
         }
 
-        line_input[strcspn(line_input, "\n")] = 0;
+        line[strcspn(line, "\n")] = 0;
 
-        if (strcmp(line_input, "exit") == 0)
-        {
-            free(line_input);
-            break;
-        }
-
-        if (strcmp(line_input, "env") == 0)
-        {
-            print_env();
+        if (strlen(line) == 0)
             continue;
-        }
 
-        ex = execute(line_input);
-        if (ex == -1)
-            perror("Execution error");
+        execute(line);
     }
 
-    return (ex);
+    free(line);
+    return (0);
 }
