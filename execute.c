@@ -16,14 +16,16 @@ void execute(char *command)
     pid = fork();
     if (pid == -1)
     {
-        perror("fork");
+        perror("./hsh");
         return;
     }
     if (pid == 0)
     {
         if (execve(command, args, environ) == -1)
         {
-            printf("%s: No such file or directory\n", command);
+            write(STDERR_FILENO, "./hsh: 1: ", 10);
+            write(STDERR_FILENO, command, strlen(command));
+            write(STDERR_FILENO, ": not found\n", 12);
             exit(EXIT_FAILURE);
         }
     }

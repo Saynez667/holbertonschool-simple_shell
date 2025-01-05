@@ -14,20 +14,20 @@ int main(void)
     while (1)
     {
         if (isatty(STDIN_FILENO))
-            printf("$ ");
+        write(STDOUT_FILENO, "$ ", 2);
 
         read = getline(&line, &len, stdin);
         if (read == -1)
         {
             if (feof(stdin))
             {
-                printf("\n");
+                write(STDOUT_FILENO, "\n", 1);
                 free(line);
                 exit(EXIT_SUCCESS);
             }
             else
             {
-                perror("getline");
+                perror("./hsh");
                 free(line);
                 exit(EXIT_FAILURE);
             }
