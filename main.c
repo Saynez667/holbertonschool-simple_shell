@@ -5,42 +5,47 @@
  *
  * Return: 0 (On success) or -1 (on error)
  */
-
 int main(void)
 {
-	char *line_input = NULL;
-	int ex = 0, r;
-	size_t bufsize = 0;
+    char *line_input = NULL;
+    int ex = 0, r;
+    size_t bufsize = 0;
 
-	while (1)
-	{
-		if (isatty(STDIN_FILENO))
-			printf("simpleshell$ ");
+    while (1)
+    {
+        if (isatty(STDIN_FILENO))
+            printf("simpleshell$ ");
 
-		signal(SIGINT, signal_handler);
+        signal(SIGINT, signal_handler);
 
-		r = getline(&line_input, &bufsize, stdin);
-		if (r == -1)
-		{
-			if (feof(stdin))
-				printf("\n");
-			break;
-		}
+        r = getline(&line_input, &bufsize, stdin);
+        if (r == -1)
+        {
+            if (feof(stdin))
+                printf("\n");
+            free(line_input);
+            break;
+        }
 
-		if (strcmp(line_input, "exit\n") == 0)
-			break;
+        /* Remove newline character */
+        line_input[strcspn(line_input, "\n")] = 0;
 
-		if (strcmp(line_input, "env\n") == 0)
-		{
-			print_env();
-			continue;
-		}
+        if (strcmp(line_input, "exit") == 0)
+        {
+            free(line_input);
+            break;
+        }
 
-		ex = execute(line_input);
-		if (ex == -1)
-			perror("Execution error");
-	}
+        if (strcmp(line_input, "env") == 0)
+        {
+            print_env();
+            continue;
+        }
 
-	free(line_input);
-	return (ex);
+        ex = execute(line_input);
+        if (ex == -1)
+            perror("Execution error");
+    }
+
+    return (ex);
 }
