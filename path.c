@@ -14,13 +14,6 @@ char *find_command_in_path(const char *command)
 	if (!command)
 		return (NULL);
 
-	if (command[0] == '/' || command[0] == '.')
-	{
-		if (stat(command, &st) == 0)
-			return (_strdup(command));
-		return (NULL);
-	}
-
 	path = _getenv("PATH", environ);
 	if (!path)
 		return (NULL);
@@ -39,7 +32,7 @@ char *find_command_in_path(const char *command)
 			return (NULL);
 		}
 		sprintf(full_path, "%s/%s", dir, command);
-		if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
+		if (stat(full_path, &st) == 0)
 		{
 			free(path_copy);
 			return (full_path);

@@ -42,6 +42,9 @@ int _strlen(const char *s);
 char *_strchr(const char *s, int c);
 int _atoi(const char *str);
 
+/* Signal handling */
+void handle_signal(int sig);
+
 /* Global variables */
 extern char **environ;
 
