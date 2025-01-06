@@ -15,7 +15,7 @@ int main(void)
 	while (1)
 	{
 		if (isatty(0))
-			printf("hsh$ ");
+			printf("ValakShell$ ");
 
 		buff_size = getline(&buff, &read_size, stdin);
 		if (buff_size == -1 || _strcmp("exit\n", buff) == 0)
@@ -38,7 +38,7 @@ int main(void)
 		}
 
 		args = _split(buff, " ");
-		args[0] = search_path(args[0]);
+		args[0] = handle_path(args[0]);
 
 		if (args[0] != NULL)
 			exit_status = execute(args);

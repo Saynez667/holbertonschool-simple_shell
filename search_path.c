@@ -1,50 +1,50 @@
 #include "shell.h"
 
 /**
- * search_path - search file between the path
- * @command: cmd
- * Return: cmd path
+ * handle_path - Finds the path of the command to execute
+ * @input: User input
+ * Return: The full path of the command if found, NULL otherwise
  */
 
-char *search_path(char *command)
+char *handle_path(char *input)
 {
-	char *path = _getenv("PATH"), *path_cpy;
-	char **path_split;
-	char *path_concat = NULL;
-	int i = 0, path_len = 0;
-	struct stat info;
+	int i = 0;
+	char *cache, *token, *result;
 
-	if (stat(command, &info) == 0)
-		return (command);
+	if (strchr(input, '/') != NULL)
+		return (strdup(input));
 
-	path_cpy = malloc(_strlen(path) + 1);
-
-	path_cpy = _strcpy(path_cpy, path);
-	path_split = _split(path_cpy, ":");
-
-	while (path_split[i])
+	while (environ[i] != NULL)
 	{
-		path_len = _strlen(path_split[i]);
+		cache = strdup(environ[i]);
+		token = strtok(cache, "=");
+		if (strcmp(token, "PATH") == 0)
+		{
+			token = strtok(NULL, "=");
+			token = strtok(token, ":");
+			while (token != NULL)
+			{
+				result = malloc(strlen(token) + strlen(input) + 2);
+				if (result == NULL)
+				{
+					perror("Malloc is NULL");
+					return (NULL);
+				}
+				sprintf(result, "%s/%s", token, input);
+				if (access(result, X_OK) == 0)
+				{
+					free(cache);
+					return (result);
+				}
 
-		if (path_split[i][path_len - 1] != '/')
-			path_concat = _strcat(path_split[i], "/");
-
-		path_concat = _strcat(path_split[i], command);
-
-		if (stat(path_concat, &info) == 0)
-			break;
-
+				free(result);
+				token = strtok(NULL, ":");
+			}
+		}
+		free(cache);
 		i++;
 	}
 
-	free(path_cpy);
-
-	if (!path_split[i])
-	{
-		free(path_split);
-		return (NULL);
-	}
-
-	free(path_split);
-	return (path_concat);
+	free(input);
+	return (NULL);
 }

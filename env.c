@@ -6,7 +6,7 @@
  * Return: env variable result, its content
  */
 
-char *_getenv(char *env_var)
+char *_getenv(const char *env_var)
 {
 	int i = 0, j;
 	int status;
