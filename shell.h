@@ -19,7 +19,7 @@ void prompt(void);
 char *read_input(void);
 char **parse_command(char *command);
 void execute_command(char **args);
-char *find_command_in_path(char *command);
+char *find_command_in_path(const char *command);
 void print_env(void);
 void change_directory(char **args);
 char *_getenv(const char *name, char **environ);
