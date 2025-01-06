@@ -81,46 +81,61 @@ int execute_builtin(char **args)
  * This function handles the command execution by creating a child
  * process and running the command using execve.
  */
+#include "shell.h"
+#include <fcntl.h>
+
 void execute_command(char **args)
 {
-	pid_t pid;
-	int status;
-	char *full_path = NULL;
+    pid_t pid;
+    int status;
+    char *full_path = NULL;
 
-	if (execute_builtin(args))
-		return;
-	handle_redirection(args);
-	if (strchr(args[0], '/') == NULL)
-	{
-		full_path = find_command_in_path(args[0]);
-		if (full_path == NULL)
-		{
-			fprintf(stderr, "%s: command not foundin PATH\n", args[0]);
-			return;
-		}
-	} else
-		full_path = args[0];
-	pid = fork();
-	if (pid == 0)
-	{
-		if (full_path == NULL || execve(full_path, args, environ) == -1)
-		{
-			perror("execve");
-			exit(127);
-		}
-	}
-	else if (pid > 0)
-	{
-		do {
-			if (waitpid(pid, &status, 0) == -1)
-			{
-				perror("waitpid");
-				break;
-			}
-		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-	}
-	else
-		perror("fork");
-	if (full_path != args[0])
-		free(full_path);
+    if (args == NULL || args[0] == NULL)
+        return;
+
+    if (execute_builtin(args))
+        return;
+
+    handle_redirection(args);
+
+    if (strchr(args[0], '/') == NULL)
+    {
+        full_path = find_command_in_path(args[0]);
+        if (full_path == NULL)
+        {
+            fprintf(stderr, "%s: command not found\n", args[0]);
+            return;
+        }
+    }
+    else
+    {
+        full_path = args[0];
+    }
+
+    pid = fork();
+    if (pid == -1)
+    {
+        perror("fork");
+        if (full_path != args[0])
+            free(full_path);
+        return;
+    }
+    else if (pid == 0)
+    {
+        if (execve(full_path, args, environ) == -1)
+        {
+            perror("execve");
+            exit(127);
+        }
+    }
+    else
+    {
+        if (waitpid(pid, &status, 0) == -1)
+        {
+            perror("waitpid");
+        }
+    }
+
+    if (full_path != args[0])
+        free(full_path);
 }
