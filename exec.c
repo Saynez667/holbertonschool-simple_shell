@@ -78,56 +78,50 @@ int execute_builtin(char **args)
 }
 
 /**
- * execute_command - Executes a command with arguments
- * @args: Array of command arguments
+ * execute_command - Execute a command with its arguments
+ * @args: Command and arguments
  *
- * Return: void
+ * Return: Exit status of command
  */
-void execute_command(char **args)
+int execute_command(char **args)
 {
-	char *full_path = NULL;
+	char *cmd_path;
 	pid_t pid;
-	int status;
+	int status = 0;
 
 	if (!args || !args[0])
-		return;
+		return (1);
 
-	if (execute_builtin(args))
-		return;
-
-	if (_strchr(args[0], '/') == NULL)
+	cmd_path = find_command_in_path(args[0]);
+	if (!cmd_path)
 	{
-		full_path = find_command_in_path(args[0]);
-		if (!full_path)
-		{
-			_print_error(args[0]);
-			_print_error(": command not found\n");
-			return;
-		}
+		_print_error(args[0]);
+		_print_error(": command not found\n");
+		return (127);
 	}
-	else
-		full_path = _strdup(args[0]);
 
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork");
-		free(full_path);
-		return;
+		free(cmd_path);
+		return (1);
 	}
+
 	if (pid == 0)
 	{
 		handle_redirection(args);
-		if (execve(full_path, args, environ) == -1)
+		if (execve(cmd_path, args, environ) == -1)
 		{
 			perror("execve");
-			free(full_path);
-			exit(EXIT_FAILURE);
+			free(cmd_path);
+			exit(126);
 		}
 	}
 	else
 	{
 		waitpid(pid, &status, 0);
-		free(full_path);
+		free(cmd_path);
 	}
+	return (WEXITSTATUS(status));
 }

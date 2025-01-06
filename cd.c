@@ -9,7 +9,7 @@
 void change_directory(char **args)
 {
 	char current_dir[BUFFER_SIZE];
-	char *target_dir, *old_pwd;
+	char *target_dir;
 
 	if (getcwd(current_dir, sizeof(current_dir)) == NULL)
 	{

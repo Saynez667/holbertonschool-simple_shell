@@ -3,97 +3,46 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-/**
- * find_command_in_path - Search for the command in PATH directories
- * @command: The command to search for
- *
- * Return: The full path of the command if found, otherwise NULL
- * Note: The caller is responsible for freeing the returned string
- */
-
 extern char **environ;
 
+/**
+ * find_command_in_path - Search for command in PATH directories
+ * @command: Command to search for
+ *
+ * Return: Full path if found, NULL otherwise
+ */
 char *find_command_in_path(const char *command)
 {
-    char *path = _getenv("PATH", environ);
-    char *path_copy, *dir, *full_path;
-    struct stat st;
+	char *path = _getenv("PATH", environ);
+	char *path_copy, *dir, *full_path;
+	struct stat st;
 
-    /* Handle absolute or relative paths directly */
-    if (command[0] == '/' || command[0] == '.')
-    {
-        if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-            return strdup(command);
-        return (NULL);
-    }
+	if (!command || (command[0] == '/' || command[0] == '.'))
+	{
+		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+			return (_strdup(command));
+		return (NULL);
+	}
 
-    if (!path)
-        return (NULL);
+	if (!path || !(path_copy = _strdup(path)))
+		return (NULL);
 
-    path_copy = strdup(path);
-    if (!path_copy)
-        return (NULL);
-
-    dir = strtok(path_copy, ":");
-    while (dir != NULL)
-    {
-        full_path = malloc(strlen(dir) + strlen(command) + 2);
-        if (full_path)
-        {
-            sprintf(full_path, "%s/%s", dir, command);
-            if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
-            {
-                free(path_copy);
-                return (full_path);
-            }
-            free(full_path);
-        }
-        dir = strtok(NULL, ":");
-    }
-
-    free(path_copy);
-    return (NULL);
-}
-
-int execute_command(char **args)
-{
-    pid_t pid;
-    int status;
-    char *cmd_path;
-
-    if (!args || !args[0])
-        return (1);
-
-    cmd_path = find_command_in_path(args[0]);
-    if (!cmd_path)
-    {
-        fprintf(stderr, "%s: command not found\n", args[0]);
-        return (127);
-    }
-
-    pid = fork();
-    if (pid == -1)
-    {
-        perror("fork");
-        free(cmd_path);
-        return (1);
-    }
-
-    if (pid == 0)
-    {
-        if (execve(cmd_path, args, environ) == -1)
-        {
-            perror("execve");
-            free(cmd_path);
-            exit(126);
-        }
-    }
-    else
-    {
-        waitpid(pid, &status, 0);
-        free(cmd_path);
-        return WEXITSTATUS(status);
-    }
-
-    return (0);
+	dir = strtok(path_copy, ":");
+	while (dir)
+	{
+		full_path = malloc(_strlen(dir) + _strlen(command) + 2);
+		if (full_path)
+		{
+			sprintf(full_path, "%s/%s", dir, command);
+			if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
+			{
+				free(path_copy);
+				return (full_path);
+			}
+			free(full_path);
+		}
+		dir = strtok(NULL, ":");
+	}
+	free(path_copy);
+	return (NULL);
 }
