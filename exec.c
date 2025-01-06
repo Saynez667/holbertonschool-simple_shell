@@ -86,9 +86,8 @@ int execute_builtin(char **args)
 
 void execute_command(char **args)
 {
-    pid_t pid;
-    int status;
     char *full_path = NULL;
+    pid_t pid;
 
     if (args == NULL || args[0] == NULL)
         return;
@@ -96,15 +95,14 @@ void execute_command(char **args)
     if (execute_builtin(args))
         return;
 
-    handle_redirection(args);
-
+    // Recherche la commande dans le PATH si ce n'est pas un chemin absolu
     if (strchr(args[0], '/') == NULL)
     {
         full_path = find_command_in_path(args[0]);
         if (full_path == NULL)
         {
             fprintf(stderr, "%s: command not found\n", args[0]);
-            return;
+            return;  // Ne pas faire de fork si la commande n'est pas trouvée
         }
     }
     else
@@ -112,28 +110,25 @@ void execute_command(char **args)
         full_path = args[0];
     }
 
+    // Maintenant que nous avons trouvé la commande, nous pouvons faire un fork
     pid = fork();
     if (pid == -1)
     {
         perror("fork");
-        if (full_path != args[0])
-            free(full_path);
-        return;
     }
     else if (pid == 0)
     {
+        // Code du processus enfant
         if (execve(full_path, args, environ) == -1)
         {
             perror("execve");
-            exit(127);
+            exit(EXIT_FAILURE);
         }
     }
     else
     {
-        if (waitpid(pid, &status, 0) == -1)
-        {
-            perror("waitpid");
-        }
+        // Code du processus parent
+        wait(NULL);
     }
 
     if (full_path != args[0])
