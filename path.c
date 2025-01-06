@@ -2,6 +2,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+extern char **environ;
+
 /**
  * find_command_in_path - Search for the command in PATH directories
  * @command: The command to search for
