@@ -14,8 +14,12 @@ char *find_command_in_path(const char *command)
 	if (!command)
 		return (NULL);
 
-	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-		return (_strdup(command));
+	if (command[0] == '/' || command[0] == '.')
+	{
+		if (stat(command, &st) == 0)
+			return (_strdup(command));
+		return (NULL);
+	}
 
 	path = _getenv("PATH", environ);
 	if (!path)
