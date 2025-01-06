@@ -22,6 +22,7 @@ void _print_error(const char *message);
 char **parse_command(char *command);
 int execute_command(char **args);
 char *find_command_in_path(const char *command);
+int execute_builtin(char **args);
 
 /* Built-in commands */
 void print_env(void);
