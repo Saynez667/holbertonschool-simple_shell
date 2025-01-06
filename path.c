@@ -1,12 +1,8 @@
 #include "shell.h"
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/wait.h>
 
 /**
- * find_command_in_path - Search for command in PATH directories
- * @command: Command to search for
- *
+ * find_command_in_path - Search for command in PATH
+ * @command: Command to search
  * Return: Full path if found, NULL otherwise
  */
 char *find_command_in_path(const char *command)
@@ -18,8 +14,7 @@ char *find_command_in_path(const char *command)
 	if (!command || !path)
 		return (NULL);
 
-	/* Check if command is absolute or relative path */
-	if (strchr(command, '/') != NULL)
+	if (_strchr(command, '/') != NULL)
 	{
 		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
 			return (_strdup(command));

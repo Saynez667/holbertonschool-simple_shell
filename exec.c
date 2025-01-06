@@ -1,42 +1,8 @@
 #include "shell.h"
-#include <fcntl.h>
 
 /**
- * execute_builtin - Executes built-in shell commands
- * @args: Array of command arguments
- *
- * Return: 1 if builtin was executed, 0 otherwise
- */
-int execute_builtin(char **args)
-{
-	int status;
-
-	if (!args || !args[0])
-		return (0);
-
-	if (_strcmp(args[0], "env") == 0)
-	{
-		print_env();
-		return (1);
-	}
-	if (_strcmp(args[0], "exit") == 0)
-	{
-		status = args[1] ? _atoi(args[1]) : 0;
-		free_args(args);
-		exit(status);
-	}
-	if (_strcmp(args[0], "cd") == 0)
-	{
-		change_directory(args);
-		return (1);
-	}
-	return (0);
-}
-
-/**
- * execute_command - Execute a command with its arguments
+ * execute_command - Execute a command with arguments
  * @args: Command and arguments
- *
  * Return: Exit status
  */
 int execute_command(char **args)
@@ -73,13 +39,42 @@ int execute_command(char **args)
 		{
 			perror("execve");
 			free(cmd_path);
-			exit(126);
+			_exit(126);
 		}
 	}
-	else
-	{
-		waitpid(pid, &status, 0);
-		free(cmd_path);
-	}
+
+	waitpid(pid, &status, 0);
+	free(cmd_path);
 	return (WEXITSTATUS(status));
+}
+
+/**
+ * execute_builtin - Execute built-in commands
+ * @args: Command arguments
+ * Return: 1 if builtin executed, 0 otherwise
+ */
+int execute_builtin(char **args)
+{
+	if (!args || !args[0])
+		return (0);
+
+	if (_strcmp(args[0], "exit") == 0)
+	{
+		free_args(args);
+		exit(_atoi(args[1] ? args[1] : "0"));
+	}
+
+	if (_strcmp(args[0], "env") == 0)
+	{
+		print_env();
+		return (1);
+	}
+
+	if (_strcmp(args[0], "cd") == 0)
+	{
+		change_directory(args);
+		return (1);
+	}
+
+	return (0);
 }
