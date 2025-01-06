@@ -1,6 +1,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+/* Libraries */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,27 +10,38 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 
+/* Macros */
 #define BUFFER_SIZE 1024
 
-/* Function prototypes */
+/* Input/Output functions */
 void prompt(void);
 char *read_input(void);
+void _print_error(const char *message);
+
+/* Command processing functions */
 char **parse_command(char *command);
 int execute_command(char **args);
 char *find_command_in_path(const char *command);
+
+/* Built-in commands */
 void print_env(void);
 void change_directory(char **args);
+
+/* Environment functions */
 char *_getenv(const char *name, char **environ);
+
+/* Memory management */
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-void handle_redirection(char **args);
-void _print_error(const char *message);
+void free_args(char **args);
+
+/* String utilities */
 char *_strdup(const char *str);
 int _strcmp(const char *s1, const char *s2);
-void free_args(char **args);
 int _strlen(const char *s);
 char *_strchr(const char *s, int c);
 int _atoi(const char *str);
 
+/* Global variables */
 extern char **environ;
 
-#endif
+#endif /* SHELL_H */

@@ -2,51 +2,6 @@
 #include <fcntl.h>
 
 /**
- * handle_redirection - Handles output redirection for commands
- * @args: Array of command arguments
- *
- * Return: void
- */
-void handle_redirection(char **args)
-{
-	int i, fd;
-
-	for (i = 0; args[i] != NULL; i++)
-	{
-		if (_strcmp(args[i], ">") == 0)
-		{
-			if (args[i + 1] == NULL)
-			{
-				_print_error("No file specified for redirection\n");
-				return;
-			}
-			args[i] = NULL;
-			fd = open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if (fd == -1)
-			{
-				perror("open");
-				return;
-			}
-			if (close(STDOUT_FILENO) == -1)
-			{
-				perror("close");
-				close(fd);
-				return;
-			}
-			if (open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644)
-				!= STDOUT_FILENO)
-			{
-				_print_error("Failed to redirect output\n");
-				close(fd);
-				return;
-			}
-			close(fd);
-			break;
-		}
-	}
-}
-
-/**
  * execute_builtin - Executes built-in shell commands
  * @args: Array of command arguments
  *
@@ -82,7 +37,7 @@ int execute_builtin(char **args)
  * execute_command - Execute a command with its arguments
  * @args: Command and arguments
  *
- * Return: Exit status of command
+ * Return: Exit status
  */
 int execute_command(char **args)
 {
@@ -114,7 +69,6 @@ int execute_command(char **args)
 
 	if (pid == 0)
 	{
-		handle_redirection(args);
 		if (execve(cmd_path, args, environ) == -1)
 		{
 			perror("execve");

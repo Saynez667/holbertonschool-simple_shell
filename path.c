@@ -3,8 +3,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-extern char **environ;
-
 /**
  * find_command_in_path - Search for command in PATH directories
  * @command: Command to search for
@@ -13,23 +11,25 @@ extern char **environ;
  */
 char *find_command_in_path(const char *command)
 {
-	char *path, *path_copy, *dir, *full_path;
+	char *path = _getenv("PATH", environ);
+	char *path_copy, *dir, *full_path;
 	struct stat st;
 
-	if (!command)
+	if (!command || !path)
 		return (NULL);
-	if (command[0] == '/' || command[0] == '.')
+
+	/* Check if command is absolute or relative path */
+	if (strchr(command, '/') != NULL)
 	{
 		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
 			return (_strdup(command));
 		return (NULL);
 	}
-	path = _getenv("PATH", environ);
-	if (!path)
-		return (NULL);
+
 	path_copy = _strdup(path);
 	if (!path_copy)
 		return (NULL);
+
 	dir = strtok(path_copy, ":");
 	while (dir)
 	{
