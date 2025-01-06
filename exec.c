@@ -33,7 +33,8 @@ void handle_redirection(char **args)
 				close(fd);
 				return;
 			}
-			if (open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644) != STDOUT_FILENO)
+			if (open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644)
+				!= STDOUT_FILENO)
 			{
 				_print_error("Failed to redirect output\n");
 				close(fd);
@@ -91,6 +92,9 @@ int execute_command(char **args)
 
 	if (!args || !args[0])
 		return (1);
+
+	if (execute_builtin(args))
+		return (0);
 
 	cmd_path = find_command_in_path(args[0]);
 	if (!cmd_path)
