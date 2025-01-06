@@ -1,4 +1,5 @@
 #include "shell.h"
+#include <sys/stat.h>
 
 /**
  * find_command_in_path - Search for command in PATH
@@ -7,19 +8,18 @@
  */
 char *find_command_in_path(const char *command)
 {
-	char *path = _getenv("PATH", environ);
-	char *path_copy, *dir, *full_path;
+	char *path, *path_copy, *dir, *full_path;
 	struct stat st;
 
-	if (!command || !path)
+	if (!command)
 		return (NULL);
 
-	if (_strchr(command, '/') != NULL)
-	{
-		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-			return (_strdup(command));
+	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+		return (_strdup(command));
+
+	path = _getenv("PATH", environ);
+	if (!path)
 		return (NULL);
-	}
 
 	path_copy = _strdup(path);
 	if (!path_copy)
