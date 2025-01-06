@@ -2,16 +2,26 @@
 #include <signal.h>
 
 /**
- * main - Entry point
- * Return: 0 if success
+ * handle_signal - Signal handler for SIGINT
+ * @sig: Signal number
+ */
+void handle_signal(int sig)
+{
+	(void)sig;
+	write(STDOUT_FILENO, "\n$ ", 3);
+}
+
+/**
+ * main - Entry point for shell program
+ * Return: 0 on success
  */
 int main(void)
 {
-	int i;
-	char *command;
-	char **args;
+	char *command = NULL;
+	char **args = NULL;
+	int status = 0;
 
-	signal(SIGINT, SIG_IGN);
+	signal(SIGINT, handle_signal);
 
 	while (1)
 	{
@@ -19,30 +29,27 @@ int main(void)
 		command = read_input();
 
 		if (!command)
-		{
 			break;
-		}
 
-		if (command[strlen(command) - 1] == '\n')
-			command[strlen(command) - 1] = '\0';
-
-		if (strcmp(command, "exit") == 0)
+		if (command[0] == '\0' || strcmp(command, "\n") == 0)
 		{
 			free(command);
-			break;
+			continue;
 		}
 
 		args = parse_command(command);
+		if (!args)
+		{
+			free(command);
+			continue;
+		}
 
-		if (args[0] != NULL)
+		if (args[0])
 			execute_command(args);
 
-		for (i = 0; args[i] != NULL; i++)
-			free(args[i]);
-
 		free(command);
-		free(args);
+		free_args(args);
 	}
 
-	return (0);
+	return (status);
 }

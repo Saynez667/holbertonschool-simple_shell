@@ -1,8 +1,7 @@
 #include "shell.h"
 #include <sys/stat.h>
 #include <unistd.h>
-
-extern char **environ;
+#include <sys/wait.h>
 
 /**
  * find_command_in_path - Search for the command in PATH directories
@@ -11,18 +10,29 @@ extern char **environ;
  * Return: The full path of the command if found, otherwise NULL
  * Note: The caller is responsible for freeing the returned string
  */
+
+extern char **environ;
+
 char *find_command_in_path(const char *command)
 {
     char *path = _getenv("PATH", environ);
     char *path_copy, *dir, *full_path;
     struct stat st;
 
+    /* Handle absolute or relative paths directly */
+    if (command[0] == '/' || command[0] == '.')
+    {
+        if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+            return strdup(command);
+        return (NULL);
+    }
+
     if (!path)
-        return NULL;
+        return (NULL);
 
     path_copy = strdup(path);
     if (!path_copy)
-        return NULL;
+        return (NULL);
 
     dir = strtok(path_copy, ":");
     while (dir != NULL)
@@ -34,7 +44,7 @@ char *find_command_in_path(const char *command)
             if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
             {
                 free(path_copy);
-                return full_path;
+                return (full_path);
             }
             free(full_path);
         }
@@ -42,5 +52,48 @@ char *find_command_in_path(const char *command)
     }
 
     free(path_copy);
-    return NULL;
+    return (NULL);
+}
+
+int execute_command(char **args)
+{
+    pid_t pid;
+    int status;
+    char *cmd_path;
+
+    if (!args || !args[0])
+        return (1);
+
+    cmd_path = find_command_in_path(args[0]);
+    if (!cmd_path)
+    {
+        fprintf(stderr, "%s: command not found\n", args[0]);
+        return (127);
+    }
+
+    pid = fork();
+    if (pid == -1)
+    {
+        perror("fork");
+        free(cmd_path);
+        return (1);
+    }
+
+    if (pid == 0)
+    {
+        if (execve(cmd_path, args, environ) == -1)
+        {
+            perror("execve");
+            free(cmd_path);
+            exit(126);
+        }
+    }
+    else
+    {
+        waitpid(pid, &status, 0);
+        free(cmd_path);
+        return WEXITSTATUS(status);
+    }
+
+    return (0);
 }

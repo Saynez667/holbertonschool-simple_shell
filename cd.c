@@ -3,26 +3,53 @@
 /**
  * change_directory - Changes the current working directory
  * @args: Array of arguments where args[1] is the target directory
+ *
+ * Return: void
  */
 void change_directory(char **args)
 {
-	const char *home_dir;
+	char current_dir[BUFFER_SIZE];
+	char *target_dir, *old_pwd;
 
-	if (args[1] == NULL)
+	if (getcwd(current_dir, sizeof(current_dir)) == NULL)
 	{
-		home_dir = getenv("HOME");
-		if (home_dir == NULL)
+		perror("getcwd");
+		return;
+	}
+
+	if (args[1] == NULL || strcmp(args[1], "~") == 0)
+	{
+		target_dir = _getenv("HOME", environ);
+		if (!target_dir)
 		{
 			fprintf(stderr, "cd: HOME not set\n");
 			return;
 		}
-
-		if (chdir(home_dir) != 0)
-			perror("cd");
+	}
+	else if (strcmp(args[1], "-") == 0)
+	{
+		target_dir = _getenv("OLDPWD", environ);
+		if (!target_dir)
+		{
+			fprintf(stderr, "cd: OLDPWD not set\n");
+			return;
+		}
+		printf("%s\n", target_dir);
 	}
 	else
+		target_dir = args[1];
+
+	if (chdir(target_dir) == -1)
 	{
-		if (chdir(args[1]) != 0)
-			perror("cd");
+		perror("cd");
+		return;
+	}
+
+	if (setenv("OLDPWD", current_dir, 1) == -1)
+		perror("setenv OLDPWD");
+	if (getcwd(current_dir, sizeof(current_dir)) != NULL)
+	{
+		if (setenv("PWD", current_dir, 1) == -1)
+			perror("setenv PWD");
 	}
 }

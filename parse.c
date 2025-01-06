@@ -1,73 +1,75 @@
 #include "shell.h"
 
 /**
- * reallocate_tokens - Reallocates the tokens array to fit more arguments
- * @tokens: The current array of tokens
- * @bufsize: Pointer to the current buffer size
- * @current_size: The current number of tokens
- * Return: The reallocated array of tokens
+ * reallocate_tokens - Reallocates memory for tokens array
+ * @tokens: Current tokens array
+ * @bufsize: Current buffer size
+ * @current_size: Number of tokens
+ *
+ * Return: Reallocated array or NULL on failure
  */
 char **reallocate_tokens(char **tokens, int *bufsize, int current_size)
 {
-	int j;
 	char **new_tokens;
 
 	*bufsize += BUFFER_SIZE;
-	new_tokens = realloc(tokens, (*bufsize) * sizeof(char *));
+	new_tokens = _realloc(tokens, current_size * sizeof(char *),
+			(*bufsize) * sizeof(char *));
 	if (!new_tokens)
 	{
-		fprintf(stderr, "Allocation error\n");
-		for (j = 0; j < current_size; j++)
-			free(tokens[j]);
-		free(tokens);
-		exit(EXIT_FAILURE);
+		free_args(tokens);
+		return (NULL);
 	}
 	return (new_tokens);
 }
 
 /**
- * parse_command - Parse the command and its arguments
- * @command: The command entered by the user
- * Return: Array of arguments
+ * parse_command - Splits command into tokens
+ * @command: Input command string
+ *
+ * Return: Array of tokens or NULL on failure
  */
 char **parse_command(char *command)
 {
-	int bufsize, i, j;
-	char **tokens;
-	char *token, *command_copy;
+	int bufsize = BUFFER_SIZE, i = 0;
+	char **tokens, *token, *command_copy;
+	const char *delim = " \t\r\n\a";
 
-	bufsize = BUFFER_SIZE;
-	i = 0;
+	if (!command)
+		return (NULL);
+
 	tokens = malloc(bufsize * sizeof(char *));
 	if (!tokens)
-	{
-		fprintf(stderr, "Allocation error\n");
-		exit(EXIT_FAILURE);
-	}
-	command_copy = strdup(command);
+		return (NULL);
+
+	command_copy = _strdup(command);
 	if (!command_copy)
 	{
-		fprintf(stderr, "Allocation error\n");
 		free(tokens);
-		exit(EXIT_FAILURE);
+		return (NULL);
 	}
-	token = strtok(command_copy, " ");
-	while (token != NULL)
+
+	token = strtok(command_copy, delim);
+	while (token)
 	{
-		tokens[i] = strdup(token);
+		tokens[i] = _strdup(token);
 		if (!tokens[i])
 		{
-			fprintf(stderr, "Allocation error\n");
-			for (j = 0; j < i; j++)
-				free(tokens[j]);
-			free(tokens);
+			free_args(tokens);
 			free(command_copy);
-			exit(EXIT_FAILURE);
+			return (NULL);
 		}
 		i++;
 		if (i >= bufsize)
+		{
 			tokens = reallocate_tokens(tokens, &bufsize, i);
-		token = strtok(NULL, " ");
+			if (!tokens)
+			{
+				free(command_copy);
+				return (NULL);
+			}
+		}
+		token = strtok(NULL, delim);
 	}
 	tokens[i] = NULL;
 	free(command_copy);
