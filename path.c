@@ -33,6 +33,7 @@ char *concat_path(char *dir, char *command)
 char *get_file_path(char *command)
 {
     char *path, *path_copy, *dir, *full_path;
+    struct stat st;
 
     path = getenv("PATH");
     if (!path)
@@ -52,7 +53,7 @@ char *get_file_path(char *command)
             return (NULL);
         }
         
-        if (access(full_path, F_OK | X_OK) == 0)
+        if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
         {
             free(path_copy);
             return (full_path);
