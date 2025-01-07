@@ -4,7 +4,6 @@
  * @cmd_path: Path to the command to execute
  * @args: Array of arguments
  * @env: Environment variables
- * Return: void
  */
 void execute_child(char *cmd_path, char *args[], char **env)
 {
@@ -50,8 +49,11 @@ char *handle_command_path(char *args[], char *program_name)
  * @argv: Array of argument
  * @env: Environment variables
  * @program_name: Name of the shell program
+ *
+ * Return: Exit status (0 on success, 1 on error, 127 if command not found,
+ *         or the exit status of the executed command)
  */
-void execute_command(char *input, char *argv[] __attribute__((unused)),
+int execute_command(char *input, char *argv[] __attribute__((unused)),
 		char **env, char *program_name)
 {
 	char *args[10];
@@ -61,16 +63,16 @@ void execute_command(char *input, char *argv[] __attribute__((unused)),
 
 	num_args = tokenize_input(input, args);
 	if (num_args == 0)
-		return;
+		return (0);  /* Retourne 0 si pas d'arguments */
 
 	if (handle_builtin_commands(args, num_args, input, env) == 1)
-		return;
+		return (0);  /* Retourne 0 pour les commandes builtin réussies */
 
 	cmd_path = handle_command_path(args, program_name);
 	if (cmd_path == NULL)
 	{
 		print_error(program_name, args[0], "not found");
-		return;
+		return (127);  /* Commande non trouvée */
 	}
 
 	child_pid = fork();
@@ -78,7 +80,7 @@ void execute_command(char *input, char *argv[] __attribute__((unused)),
 	{
 		perror("Error");
 		free(cmd_path);
-		return;
+		return (1);  /* Erreur de fork */
 	}
 
 	if (child_pid == 0)
@@ -87,4 +89,5 @@ void execute_command(char *input, char *argv[] __attribute__((unused)),
 		wait(&status);
 
 	free(cmd_path);
+	return (WEXITSTATUS(status));
 }

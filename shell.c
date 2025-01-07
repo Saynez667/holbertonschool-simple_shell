@@ -1,16 +1,17 @@
 #include "shell.h"
 
 /**
-  * main - Wait program
-  * @argc: Argumnt count
+  * main - Simple shell main program
+  * @argc: Argument count
   * @argv: Array of arguments
-  * @env: Environment variable
+  * @env: Environment variables
   *
-  * Return: O Always succes
+  * Return: 0 Always success
   */
 int main(int argc __attribute__((unused)), char *argv[], char **env)
 {
-	char *input_buffer;
+	char *input_buffer = NULL;
+	int status = 0;
 
 	while (1)
 	{
@@ -19,13 +20,15 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 
 		if (!input_buffer)
 		{
-			write(STDOUT_FILENO, "\n", 1);
-			return (0);
+			if (isatty(STDIN_FILENO))
+				write(STDOUT_FILENO, "\n", 1);
+			return (status);
 		}
 
-		execute_command(input_buffer, argv, env, argv[0]);
+		status = execute_command(input_buffer, argv, env, argv[0]);
 		free(input_buffer);
+		input_buffer = NULL;
 	}
 
-	return (0);
+	return (status);
 }
