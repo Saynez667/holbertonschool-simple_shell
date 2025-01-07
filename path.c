@@ -22,7 +22,6 @@ char *concat_path(char *dir, char *command)
 	if (!full_path)
 		return (NULL);
 
-	_memset(full_path, 0, dir_len + cmd_len + 2);
 	_strcpy(full_path, dir);
 	if (dir[dir_len - 1] != '/')
 	{
@@ -32,6 +31,23 @@ char *concat_path(char *dir, char *command)
 	_strcpy(full_path + dir_len, command);
 
 	return (full_path);
+}
+
+/**
+ * trim_spaces - Removes leading spaces from command
+ * @command: Command string to trim
+ *
+ * Return: Pointer to first non-space character
+ */
+char *trim_spaces(char *command)
+{
+	if (!command)
+		return (NULL);
+
+	while (*command == ' ')
+		command++;
+
+	return (command);
 }
 
 /**
@@ -45,10 +61,14 @@ char *get_file_path(char *command)
 	char *path, *path_copy, *dir, *full_path;
 	struct stat st;
 
-	if (!command || !*command)
+	if (!command)
 		return (NULL);
 
-	if (_strchr(command, '/') != NULL)
+	command = trim_spaces(command);
+	if (!command)
+		return (NULL);
+
+	if (strchr(command, '/') != NULL)
 	{
 		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
 			return (_strdup(command));
