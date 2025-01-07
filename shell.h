@@ -20,7 +20,7 @@ void _print_error(const char *message);
 
 /* Command processing functions */
 char **parse_command(char *command);
-int execute_command(char **args);
+int execute_command(char **args, char *full_path);
 char *find_command_in_path(const char *command);
 
 /* Environment functions */
