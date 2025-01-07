@@ -4,6 +4,7 @@
  * concat_path - Concatenates directory and command
  * @dir: Directory path
  * @command: Command name
+ *
  * Return: Full path or NULL on failure
  */
 char *concat_path(char *dir, char *command)
@@ -35,6 +36,7 @@ char *concat_path(char *dir, char *command)
 /**
  * get_file_path - Get's the full path of the file
  * @command: Command to find
+ *
  * Return: Full path of command or NULL if not found
  */
 char *get_file_path(char *command)

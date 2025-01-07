@@ -20,6 +20,7 @@ void execute_child(char *cmd_path, char *args[], char **env)
  * handle_command_path - Handles command path resolution using stat
  * @args: Array of arguments
  * @program_name: Name of the shell program
+ *
  * Return: Command path or NULL
  */
 char *handle_command_path(char *args[], char *program_name)
@@ -59,6 +60,7 @@ char *handle_command_path(char *args[], char *program_name)
  * @argv: Array of argument
  * @env: Environment variables
  * @program_name: Name of the shell program
+ *
  * Return: Exit status of the command
  */
 int execute_command(char *input, char *argv[] __attribute__((unused)),
