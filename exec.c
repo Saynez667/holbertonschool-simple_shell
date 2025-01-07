@@ -27,21 +27,26 @@ char *handle_command_path(char *args[], char *program_name)
 	char *cmd_path = NULL;
 	struct stat st;
 
-	if (!args[0] || args[0][0] == '\0')
-	{
-		print_error(program_name, "", "not found");
+	if (!args[0])
 		return (NULL);
-	}
 
 	if (strchr(args[0], '/') != NULL)
 	{
-		if (stat(args[0], &st) == 0 && (st.st_mode & S_IXUSR))
-			return (_strdup(args[0]));
-		print_error(program_name, args[0], "not found");
-		return (NULL);
+		if (stat(args[0], &st) == -1)
+		{
+			print_error(program_name, args[0], "not found");
+			return (NULL);
+		}
+		if (!(st.st_mode & S_IXUSR))
+		{
+			print_error(program_name, args[0], "Permission denied");
+			return (NULL);
+		}
+		cmd_path = _strdup(args[0]);
 	}
+	else
+		cmd_path = get_file_path(args[0]);
 
-	cmd_path = get_file_path(args[0]);
 	if (cmd_path == NULL)
 		print_error(program_name, args[0], "not found");
 
