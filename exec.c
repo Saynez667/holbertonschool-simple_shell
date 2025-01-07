@@ -15,12 +15,12 @@ int execute_command(char **args, char *full_path)
     if (!args || !args[0] || !full_path)
         return (1);
 
+    if (access(full_path, X_OK) == -1)
+        return (126);
+
     child_pid = fork();
     if (child_pid == -1)
-    {
-        perror("fork");
         return (1);
-    }
 
     if (child_pid == 0)
     {
