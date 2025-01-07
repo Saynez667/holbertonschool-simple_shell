@@ -6,7 +6,7 @@
   * @argv: Array of arguments
   * @env: Environment variables
   *
-  * Return: 0 Always success
+  * Return: Last status
   */
 int main(int argc __attribute__((unused)), char *argv[], char **env)
 {

@@ -30,15 +30,19 @@ char *handle_command_path(char *args[], char *program_name)
 
 	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
 	{
-		if (access(args[0], X_OK) == -1)
+		if (access(args[0], X_OK) == 0)
+			cmd_path = _strdup(args[0]);
+		else
 		{
 			print_error(program_name, args[0], "not found");
 			return (NULL);
 		}
-		cmd_path = _strdup(args[0]);
 	}
 	else
 		cmd_path = get_file_path(args[0]);
+
+	if (cmd_path == NULL)
+		print_error(program_name, args[0], "not found");
 
 	return (cmd_path);
 }
@@ -63,24 +67,21 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 
 	num_args = tokenize_input(input, args);
 	if (num_args == 0)
-		return (0);  /* Retourne 0 si pas d'arguments */
+		return (0);
 
 	if (handle_builtin_commands(args, num_args, input, env) == 1)
-		return (0);  /* Retourne 0 pour les commandes builtin réussies */
+		return (0);
 
 	cmd_path = handle_command_path(args, program_name);
 	if (cmd_path == NULL)
-	{
-		print_error(program_name, args[0], "not found");
-		return (127);  /* Commande non trouvée */
-	}
+		return (127);
 
 	child_pid = fork();
 	if (child_pid == -1)
 	{
 		perror("Error");
 		free(cmd_path);
-		return (1);  /* Erreur de fork */
+		return (1);
 	}
 
 	if (child_pid == 0)

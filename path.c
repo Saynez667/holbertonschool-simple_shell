@@ -17,7 +17,7 @@ char *concat_path(char *dir, char *command)
 	dir_len = _strlen(dir);
 	cmd_len = _strlen(command);
 
-	full_path = malloc(dir_len + cmd_len + 2); /* +2 for '/' and '\0' */
+	full_path = malloc(dir_len + cmd_len + 2);
 	if (!full_path)
 		return (NULL);
 
@@ -40,13 +40,10 @@ char *concat_path(char *dir, char *command)
 char *get_file_path(char *command)
 {
 	char *path, *path_copy, *dir, *full_path;
+	struct stat st;
 
 	if (!command)
 		return (NULL);
-
-	/* Vérifie si la commande existe dans le répertoire courant */
-	if (access(command, X_OK) == 0)
-		return (_strdup(command));
 
 	path = getenv("PATH");
 	if (!path)
@@ -62,7 +59,7 @@ char *get_file_path(char *command)
 		full_path = concat_path(dir, command);
 		if (full_path)
 		{
-			if (access(full_path, X_OK) == 0)
+			if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
 			{
 				free(path_copy);
 				return (full_path);
