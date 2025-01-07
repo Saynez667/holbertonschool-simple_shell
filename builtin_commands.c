@@ -1,14 +1,14 @@
 #include "shell.h"
 
 /**
-  * handle_builtin_commands - Handle all the built in commands
-  * @args: Arguments to the built in commands
-  * @num_args: Number of argument
-  * @input: The input command
-  * @env: The environment variables
-  *
-  * Return: 1 if successful 0, if unsuccessful
-  */
+ * handle_builtin_commands - Handle all the built in commands
+ * @args: Arguments to the built in commands
+ * @num_args: Number of arguments
+ * @input: The input command
+ * @env: The environment variables
+ *
+ * Return: 1 if builtin command was executed, 0 otherwise
+ */
 int handle_builtin_commands(char **args, int num_args, char *input, char **env)
 {
 	if (!args || !args[0])

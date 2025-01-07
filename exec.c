@@ -31,7 +31,7 @@ char *handle_command_path(char *args[], char *program_name)
 	if (!args[0])
 		return (NULL);
 
-	if (strchr(args[0], '/') != NULL)
+	if (_strchr(args[0], '/') != NULL)
 	{
 		if (stat(args[0], &st) == -1)
 		{
@@ -46,10 +46,11 @@ char *handle_command_path(char *args[], char *program_name)
 		cmd_path = _strdup(args[0]);
 	}
 	else
+	{
 		cmd_path = get_file_path(args[0]);
-
-	if (cmd_path == NULL)
-		print_error(program_name, args[0], "not found");
+		if (cmd_path == NULL)
+			print_error(program_name, args[0], "not found");
+	}
 
 	return (cmd_path);
 }
@@ -68,7 +69,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 {
 	char *args[10];
 	char *cmd_path = NULL;
-	int status, num_args;
+	int status = 0, num_args;
 	pid_t child_pid;
 
 	num_args = tokenize_input(input, args);
@@ -93,7 +94,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 	if (child_pid == 0)
 		execute_child(cmd_path, args, env);
 
-	wait(&status);
+	waitpid(child_pid, &status, 0);
 	free(cmd_path);
 	return (WEXITSTATUS(status));
 }

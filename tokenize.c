@@ -1,34 +1,47 @@
 #include "shell.h"
 
 /**
-  * tokenize_input - Tokenizes the input strings
-  * @input: Argument input
-  * @args: The array of strings
-  *
-  * Return: Number of the items tokenized
-  */
+ * tokenize_input - Tokenizes the input strings
+ * @input: Argument input
+ * @args: The array of strings
+ *
+ * Return: Number of the items tokenized
+ */
 int tokenize_input(char *input, char *args[])
 {
 	int count = 0;
 	char *token, *input_copy;
+	const char *delimiters = " \t\n\r";
 
 	if (!input || !args)
 		return (0);
 
-	/* Créer une copie pour préserver l'original */
+	/* Skip leading whitespace */
+	while (*input && (*input == ' ' || *input == '\t' || *input == '\n'))
+		input++;
+
+	if (*input == '\0')
+		return (0);
+
 	input_copy = _strdup(input);
 	if (!input_copy)
 		return (0);
 
-	token = strtok(input_copy, " \t\n");
-	while (token && count < 9)  /* Réserver un espace pour NULL */
+	token = strtok(input_copy, delimiters);
+	while (token && count < 9)
 	{
 		args[count] = token;
-		token = strtok(NULL, " \t\n");
 		count++;
+		token = strtok(NULL, delimiters);
 	}
 
-	/* S'assurer que le dernier élément est NULL */
 	args[count] = NULL;
+
+	if (count == 0)
+	{
+		free(input_copy);
+		return (0);
+	}
+
 	return (count);
 }

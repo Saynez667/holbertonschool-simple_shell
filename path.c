@@ -22,6 +22,7 @@ char *concat_path(char *dir, char *command)
 	if (!full_path)
 		return (NULL);
 
+	_memset(full_path, 0, dir_len + cmd_len + 2);
 	_strcpy(full_path, dir);
 	if (dir[dir_len - 1] != '/')
 	{
@@ -44,11 +45,15 @@ char *get_file_path(char *command)
 	char *path, *path_copy, *dir, *full_path;
 	struct stat st;
 
-	if (!command)
+	if (!command || !*command)
 		return (NULL);
 
-	if (stat(command, &st) == 0)
-		return (_strdup(command));
+	if (_strchr(command, '/') != NULL)
+	{
+		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+			return (_strdup(command));
+		return (NULL);
+	}
 
 	path = getenv("PATH");
 	if (!path)
@@ -62,15 +67,12 @@ char *get_file_path(char *command)
 	while (dir)
 	{
 		full_path = concat_path(dir, command);
-		if (full_path)
+		if (full_path && stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
 		{
-			if (stat(full_path, &st) == 0)
-			{
-				free(path_copy);
-				return (full_path);
-			}
-			free(full_path);
+			free(path_copy);
+			return (full_path);
 		}
+		free(full_path);
 		dir = strtok(NULL, ":");
 	}
 	free(path_copy);

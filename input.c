@@ -1,19 +1,17 @@
 #include "shell.h"
 
 /**
-  * read_input - Reads the input from the users
-  *
-  * Return: Character variable to the program
-  */
+ * read_input - Reads the input from the users
+ *
+ * Return: Pointer to input string or NULL if EOF or error
+ */
 char *read_input(void)
 {
-	char *input_buffer;
-	size_t buf_size;
+	char *input_buffer = NULL;
+	size_t buf_size = 0;
 	ssize_t nread;
 
-	input_buffer = NULL;
-	buf_size = 0;
-
+	/* Read input using getline */
 	nread = getline(&input_buffer, &buf_size, stdin);
 
 	if (nread == -1)
@@ -24,9 +22,16 @@ char *read_input(void)
 		return (NULL);
 	}
 
-	/* Remplacer le retour à la ligne par \0 si présent */
-	if (input_buffer[nread - 1] == '\n')
+	/* Remove trailing newline if present */
+	if (nread > 0 && input_buffer[nread - 1] == '\n')
 		input_buffer[nread - 1] = '\0';
+
+	/* Check for empty input */
+	if (input_buffer[0] == '\0')
+	{
+		free(input_buffer);
+		return (NULL);
+	}
 
 	return (input_buffer);
 }

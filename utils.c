@@ -59,3 +59,38 @@ char *_strcpy(char *dest, char *src)
 	dest[i] = '\0';
 	return (dest);
 }
+
+/**
+ * _memset - Fills memory with a constant byte
+ * @s: Memory area to fill
+ * @b: Constant byte to fill with
+ * @n: Number of bytes to fill
+ * Return: Pointer to memory area s
+ */
+char *_memset(char *s, char b, unsigned int n)
+{
+	unsigned int i;
+
+	for (i = 0; i < n; i++)
+		s[i] = b;
+	return (s);
+}
+
+/**
+ * _strchr - Locates a character in a string
+ * @s: String to search
+ * @c: Character to find
+ * Return: Pointer to first occurrence of c in s, or NULL if not found
+ */
+char *_strchr(const char *s, int c)
+{
+	while (*s != '\0')
+	{
+		if (*s == c)
+			return ((char *)s);
+		s++;
+	}
+	if (c == '\0')
+		return ((char *)s);
+	return (NULL);
+}

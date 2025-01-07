@@ -25,6 +25,8 @@ char *_strdup(char *str);
 char *_strcpy(char *dest, char *src);
 void print_error(char *program, char *cmd, char *msg);
 char *concat_path(char *dir, char *command);
+char *_memset(char *s, char b, unsigned int n);
+char *_strchr(const char *s, int c);
 
 /* Built in Functions */
 int handle_builtin_commands(char **args,
