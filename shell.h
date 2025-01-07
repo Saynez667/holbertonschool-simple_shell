@@ -12,7 +12,7 @@
 #include <errno.h>
 
 /* Execute Functions */
-int startsWithForwardSlash(char const *str);
+int check_path_type(const char *str);
 char *get_file_path(char *file_name);
 char *get_file_loc(char *path, char *file_name);
 void execute_command(char *input, char *argv[], char **env);
