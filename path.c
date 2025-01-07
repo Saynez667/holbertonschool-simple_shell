@@ -8,24 +8,15 @@
  */
 char *find_command_in_path(const char *command)
 {
-    char *path, *path_copy, *dir, *full_path;
-    struct stat st;
+    char *path, *path_copy, *dir, *full_path = NULL;
 
     if (!command)
         return (NULL);
 
-    /* Check for current directory command (./) */
-    if (command[0] == '.' && command[1] == '/')
-    {
-        if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-            return (_strdup(command));
-        return (NULL);
-    }
-
-    /* Check for absolute path */
+    /* Handle absolute path */
     if (command[0] == '/')
     {
-        if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+        if (access(command, X_OK) == 0)
             return (_strdup(command));
         return (NULL);
     }
@@ -48,7 +39,7 @@ char *find_command_in_path(const char *command)
             return (NULL);
         }
         sprintf(full_path, "%s/%s", dir, command);
-        if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
+        if (access(full_path, X_OK) == 0)
         {
             free(path_copy);
             return (full_path);

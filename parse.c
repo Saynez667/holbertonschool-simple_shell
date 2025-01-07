@@ -31,47 +31,40 @@ char **reallocate_tokens(char **tokens, int *bufsize, int current_size)
  */
 char **parse_command(char *command)
 {
-	int bufsize = BUFFER_SIZE, i = 0;
-	char **tokens, *token, *command_copy;
-	const char *delim = " \t\r\n\a";
+    int i = 0;
+    char **tokens;
+    char *token, *command_copy;
+    const char *delim = " \t\r\n\a";
 
-	if (!command)
-		return (NULL);
+    if (!command)
+        return (NULL);
 
-	tokens = malloc(bufsize * sizeof(char *));
-	if (!tokens)
-		return (NULL);
+    /* Allouer de l'espace pour un maximum de 64 tokens */
+    tokens = malloc(64 * sizeof(char *));
+    if (!tokens)
+        return (NULL);
 
-	command_copy = _strdup(command);
-	if (!command_copy)
-	{
-		free(tokens);
-		return (NULL);
-	}
+    command_copy = _strdup(command);
+    if (!command_copy)
+    {
+        free(tokens);
+        return (NULL);
+    }
 
-	token = strtok(command_copy, delim);
-	while (token)
-	{
-		tokens[i] = _strdup(token);
-		if (!tokens[i])
-		{
-			free_args(tokens);
-			free(command_copy);
-			return (NULL);
-		}
-		i++;
-		if (i >= bufsize)
-		{
-			tokens = reallocate_tokens(tokens, &bufsize, i);
-			if (!tokens)
-			{
-				free(command_copy);
-				return (NULL);
-			}
-		}
-		token = strtok(NULL, delim);
-	}
-	tokens[i] = NULL;
-	free(command_copy);
-	return (tokens);
+    token = strtok(command_copy, delim);
+    while (token && i < 63)
+    {
+        tokens[i] = _strdup(token);
+        if (!tokens[i])
+        {
+            free_args(tokens);
+            free(command_copy);
+            return (NULL);
+        }
+        token = strtok(NULL, delim);
+        i++;
+    }
+    tokens[i] = NULL;
+    free(command_copy);
+    return (tokens);
 }
