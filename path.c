@@ -45,7 +45,7 @@ char *get_file_path(char *command)
 	if (!command)
 		return (NULL);
 
-	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+	if (stat(command, &st) == 0)
 		return (_strdup(command));
 
 	path = getenv("PATH");
