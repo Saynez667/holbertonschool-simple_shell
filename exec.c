@@ -22,6 +22,19 @@ void execute_command(char *input, char *argv[], char **env)
 		return;
 	path = get_file_path(args[0]);
 
+	if (!path)
+	{
+    fprintf(stderr, "./hsh: 1: %s: not found\n", args[0]);
+    return;
+	}
+	
+	if (access(path, X_OK) == -1)
+    {
+        fprintf(stderr, "./hsh: 1: %s: Permission denied\n", args[0]);
+        free(path);
+        return;
+    }
+
 	child_pid = fork();
 
 	if (child_pid == -1)
@@ -33,13 +46,10 @@ void execute_command(char *input, char *argv[], char **env)
 
 	if (child_pid == 0)
 	{
-		if (execve(path, args, NULL) == -1)
+		if (execve(path, args, env) == -1)
 		{
-			write(2, shell_name, strlen(shell_name));
-			write(2, ": 1: ", 5);
-			write(2, args[0], strlen(args[0]));
-			write(2, ": not found\n", 12);
-			exit(127);
+			perror(args[0]);
+            exit(126);
 		}
 	}
 	else
