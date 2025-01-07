@@ -4,23 +4,30 @@
  * concat_path - Concatenates directory and command
  * @dir: Directory path
  * @command: Command name
- * Return: Full path
+ * Return: Full path or NULL on failure
  */
 char *concat_path(char *dir, char *command)
 {
-	int dir_len = 0, cmd_len = 0;
+	int dir_len, cmd_len;
 	char *full_path;
+
+	if (!dir || !command)
+		return (NULL);
 
 	dir_len = _strlen(dir);
 	cmd_len = _strlen(command);
 
-	full_path = malloc(dir_len + cmd_len + 2);
+	full_path = malloc(dir_len + cmd_len + 2); /* +2 for '/' and '\0' */
 	if (!full_path)
 		return (NULL);
 
 	_strcpy(full_path, dir);
-	full_path[dir_len] = '/';
-	_strcpy(full_path + dir_len + 1, command);
+	if (dir[dir_len - 1] != '/')
+	{
+		full_path[dir_len] = '/';
+		dir_len++;
+	}
+	_strcpy(full_path + dir_len, command);
 
 	return (full_path);
 }
@@ -28,41 +35,44 @@ char *concat_path(char *dir, char *command)
 /**
  * get_file_path - Get's the full path of the file
  * @command: Command to find
- * Return: Full path of command or NULL
+ * Return: Full path of command or NULL if not found
  */
 char *get_file_path(char *command)
 {
 	char *path, *path_copy, *dir, *full_path;
+	struct stat st;
 
-	if (command == NULL)
+	if (!command)
 		return (NULL);
 
+	/* First check if command exists in current directory */
+	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+		return (_strdup(command));
+
 	path = getenv("PATH");
-	if (path == NULL)
+	if (!path)
 		return (NULL);
 
 	path_copy = _strdup(path);
-	if (path_copy == NULL)
+	if (!path_copy)
 		return (NULL);
 
 	dir = strtok(path_copy, ":");
 	while (dir)
 	{
 		full_path = concat_path(dir, command);
-		if (full_path == NULL)
+		if (full_path)
 		{
-			free(path_copy);
-			return (NULL);
+			if (access(full_path, X_OK) == 0)
+			{
+				free(path_copy);
+				return (full_path);
+			}
+			free(full_path);
 		}
-
-		if (access(full_path, F_OK | X_OK) == 0)
-		{
-			free(path_copy);
-			return (full_path);
-		}
-		free(full_path);
 		dir = strtok(NULL, ":");
 	}
+
 	free(path_copy);
 	return (NULL);
 }
