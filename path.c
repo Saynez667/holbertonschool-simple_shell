@@ -60,7 +60,8 @@ char *get_file_path(char *command)
 	while (dir)
 	{
 		full_path = concat_path(dir, command);
-		if (full_path && stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
+		if (full_path && stat(full_path, &st) == 0 &&
+			S_ISREG(st.st_mode) && (st.st_mode & S_IXUSR))
 		{
 			free(path_copy);
 			return (full_path);

@@ -10,14 +10,14 @@ void execute_child(char *cmd_path, char *args[], char **env)
 {
 	if (execve(cmd_path, args, env) == -1)
 	{
-		perror("Error");
+		perror(args[0]);
 		free(cmd_path);
 		exit(127);
 	}
 }
 
 /**
- * handle_command_path - Handles command path resolution using stat
+ * handle_command_path - Handles command path resolution
  * @args: Array of arguments
  * @program_name: Name of the shell program
  * Return: Command path or NULL
@@ -27,27 +27,24 @@ char *handle_command_path(char *args[], char *program_name)
 	char *cmd_path = NULL;
 	struct stat st;
 
-	if (!args[0])
+	if (!args || !args[0])
 		return (NULL);
 
-	if (strchr(args[0], '/') != NULL)
+	/* Si la commande contient un slash, c'est un chemin */
+	if (strchr(args[0], '/'))
 	{
-		if (stat(args[0], &st) == -1)
+		if (stat(args[0], &st) == 0 && S_ISREG(st.st_mode) &&
+			(st.st_mode & S_IXUSR))
 		{
-			print_error(program_name, args[0], "not found");
-			return (NULL);
+			return (_strdup(args[0]));
 		}
-		if (!(st.st_mode & S_IXUSR))
-		{
-			print_error(program_name, args[0], "Permission denied");
-			return (NULL);
-		}
-		cmd_path = _strdup(args[0]);
+		print_error(program_name, args[0], "not found");
+		return (NULL);
 	}
-	else
-		cmd_path = get_file_path(args[0]);
 
-	if (cmd_path == NULL)
+	/* Sinon, cherche dans PATH */
+	cmd_path = get_file_path(args[0]);
+	if (!cmd_path)
 		print_error(program_name, args[0], "not found");
 
 	return (cmd_path);
@@ -77,7 +74,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 		return (0);
 
 	cmd_path = handle_command_path(args, program_name);
-	if (cmd_path == NULL)
+	if (!cmd_path)
 		return (127);
 
 	child_pid = fork();
