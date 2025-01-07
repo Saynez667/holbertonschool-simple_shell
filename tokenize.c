@@ -12,11 +12,21 @@ int tokenize_input(char *input, char *args[])
 	int count = 0;
 	char *token;
 
-	count = 0;
-	token = strtok(input, " \t\n");
+	if (!input || !args)
+		return (0);
 
+	/* Skip leading whitespace */
+	while (*input == ' ' || *input == '\t' || *input == '\n')
+		input++;
+
+	if (*input == '\0')
+		return (0);
+
+	token = strtok(input, " \t\n");
 	while (token)
 	{
+		if (count >= 9)  /* Garde une place pour le NULL final */
+			break;
 		args[count] = token;
 		token = strtok(NULL, " \t\n");
 		count++;

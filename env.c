@@ -9,13 +9,16 @@ void print_env(char **env)
 	int i;
 	char *str;
 
-	while (*env != NULL)
+	if (!env)
+		return;
+
+	for (i = 0; env[i] != NULL; i++)
 	{
-		str = *env;
-		for (i = 0; str[i]; i++)
-			;
-		write(1, str, i);
-		write(1, "\n", 1);
-		env++;
+		str = env[i];
+		if (str)
+		{
+			write(STDOUT_FILENO, str, _strlen(str));
+			write(STDOUT_FILENO, "\n", 1);
+		}
 	}
 }

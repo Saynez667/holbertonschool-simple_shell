@@ -11,10 +11,13 @@
 */
 void print_error(char *program_name, char *cmd, char *error_msg)
 {
-		write(STDERR_FILENO, program_name, _strlen(program_name));
-		write(STDERR_FILENO, ": 1: ", 5);
-		write(STDERR_FILENO, cmd, _strlen(cmd));
-		write(STDERR_FILENO, ": ", 2);
-		write(STDERR_FILENO, error_msg, _strlen(error_msg));
-		write(STDERR_FILENO, "\n", 1);
+	if (!program_name || !cmd || !error_msg)
+		return;
+
+	write(STDERR_FILENO, program_name, _strlen(program_name));
+	write(STDERR_FILENO, ": 1: ", 5);
+	write(STDERR_FILENO, cmd, _strlen(cmd));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, error_msg, _strlen(error_msg));
+	write(STDERR_FILENO, "\n", 1);
 }

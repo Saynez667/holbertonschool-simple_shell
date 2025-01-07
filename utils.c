@@ -9,6 +9,9 @@ int _strlen(char *str)
 {
 	int len = 0;
 
+	if (!str)
+		return (0);
+
 	while (str[len])
 		len++;
 	return (len);
@@ -22,23 +25,17 @@ int _strlen(char *str)
 char *_strdup(char *str)
 {
 	char *dup;
-	int i, len = 0;
+	int len = 0;
 
 	if (!str)
 		return (NULL);
 
-	while (str[len])
-		len++;
-
+	len = _strlen(str);
 	dup = malloc(len + 1);
 	if (!dup)
 		return (NULL);
 
-	for (i = 0; str[i]; i++)
-		dup[i] = str[i];
-	dup[i] = '\0';
-
-	return (dup);
+	return (_strcpy(dup, str));
 }
 
 /**
@@ -50,6 +47,9 @@ char *_strdup(char *str)
 char *_strcpy(char *dest, char *src)
 {
 	int i = 0;
+
+	if (!dest || !src)
+		return (NULL);
 
 	while (src[i])
 	{

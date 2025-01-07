@@ -1,4 +1,5 @@
 #include "shell.h"
+
 /**
  * execute_child - Handles the child process execution
  * @cmd_path: Path to the command to execute
@@ -16,7 +17,7 @@ void execute_child(char *cmd_path, char *args[], char **env)
 }
 
 /**
- * handle_command_path - Handles command path resolution
+ * handle_command_path - Handles command path resolution using stat
  * @args: Array of arguments
  * @program_name: Name of the shell program
  * Return: Command path or NULL
@@ -24,25 +25,27 @@ void execute_child(char *cmd_path, char *args[], char **env)
 char *handle_command_path(char *args[], char *program_name)
 {
 	char *cmd_path = NULL;
+	struct stat st;
 
 	if (!args[0])
 		return (NULL);
 
-	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
+	if (strchr(args[0], '/') != NULL)
 	{
-		if (access(args[0], X_OK) == 0)
-			cmd_path = _strdup(args[0]);
-		else
+		if (stat(args[0], &st) == -1)
 		{
 			print_error(program_name, args[0], "not found");
 			return (NULL);
 		}
+		if (!(st.st_mode & S_IXUSR))
+		{
+			print_error(program_name, args[0], "Permission denied");
+			return (NULL);
+		}
+		cmd_path = _strdup(args[0]);
 	}
 	else
 		cmd_path = get_file_path(args[0]);
-
-	if (cmd_path == NULL)
-		print_error(program_name, args[0], "not found");
 
 	return (cmd_path);
 }
@@ -53,9 +56,7 @@ char *handle_command_path(char *args[], char *program_name)
  * @argv: Array of argument
  * @env: Environment variables
  * @program_name: Name of the shell program
- *
- * Return: Exit status (0 on success, 1 on error, 127 if command not found,
- *         or the exit status of the executed command)
+ * Return: Exit status of the command
  */
 int execute_command(char *input, char *argv[] __attribute__((unused)),
 		char **env, char *program_name)
@@ -86,9 +87,12 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 
 	if (child_pid == 0)
 		execute_child(cmd_path, args, env);
-	else
-		wait(&status);
 
-	free(cmd_path);
-	return (WEXITSTATUS(status));
+	else
+	{
+		wait(&status);
+		free(cmd_path);
+		return (WEXITSTATUS(status));
+	}
+	return (0);
 }
