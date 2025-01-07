@@ -15,7 +15,11 @@ int execute_command(char **args)
 	if (!args || !args[0])
 		return (1);
 
-	/* Check if command exists before fork */
+	/* Check builtins first */
+	if (execute_builtin(args))
+		return (0);
+
+	/* Then check if command exists in PATH */
 	cmd = find_command_in_path(args[0]);
 	if (!cmd)
 	{
@@ -38,7 +42,10 @@ int execute_command(char **args)
 		free(cmd);
 		exit(126);
 	}
-	wait(&status);
-	free(cmd);
-	return (WEXITSTATUS(status));
+	else
+	{
+		wait(&status);
+		free(cmd);
+		return (WEXITSTATUS(status));
+	}
 }
