@@ -11,7 +11,7 @@ void execute_command(char *input, char *argv[] __attribute__((unused)),
 		char **env, char *program_name)
 {
 	char *args[10];
-	char *command_path = NULL;
+	char *path = NULL;
 	int status, num_args;
 	pid_t child_pid;
 
@@ -22,29 +22,48 @@ void execute_command(char *input, char *argv[] __attribute__((unused)),
 	if (handle_builtin_commands(args, num_args, input, env) == 1)
 		return;
 
-	command_path = get_file_path(args[0]);
-	if (!command_path)
+	/* Check for absolute or relative paths */
+	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
 	{
-		print_error(program_name, args[0], "not found");
-		return;
+		if (access(args[0], F_OK | X_OK) == -1)
+		{
+			print_error(program_name, args[0], "not found");
+			return;
+		}
+		path = _strdup(args[0]);
+	}
+	else
+	{
+		/* Search in PATH for command */
+		path = get_file_path(args[0]);
+		if (!path)
+		{
+			print_error(program_name, args[0], "not found");
+			return;
+		}
 	}
 
+	/* Only fork if command exists */
 	child_pid = fork();
 	if (child_pid == -1)
 	{
 		perror("Error");
-		free(command_path);
+		free(path);
 		return;
 	}
 
 	if (child_pid == 0)
 	{
-		execve(command_path, args, env);
-		perror("Error");
-		free(command_path);
-		exit(127);
+		if (execve(path, args, env) == -1)
+		{
+			perror("Error");
+			free(path);
+			exit(127);
+		}
 	}
-	
-	wait(&status);
-	free(command_path);
+	else
+	{
+		waitpid(child_pid, &status, 0);
+	}
+	free(path);
 }
