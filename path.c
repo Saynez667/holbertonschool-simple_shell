@@ -35,25 +35,28 @@ char *get_file_path(char *command)
     char *path, *path_copy, *dir, *full_path;
     struct stat st;
 
+    if (command == NULL)
+        return (NULL);
+
     path = getenv("PATH");
-    if (!path)
+    if (path == NULL)
         return (NULL);
 
     path_copy = _strdup(path);
-    if (!path_copy)
+    if (path_copy == NULL)
         return (NULL);
 
     dir = strtok(path_copy, ":");
     while (dir)
     {
         full_path = concat_path(dir, command);
-        if (!full_path)
+        if (full_path == NULL)
         {
             free(path_copy);
             return (NULL);
         }
-        
-        if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
+
+        if (stat(full_path, &st) == 0)
         {
             free(path_copy);
             return (full_path);
