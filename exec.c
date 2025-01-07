@@ -47,6 +47,9 @@ char *handle_command_path(char *args[], char *program_name)
 	else
 		cmd_path = get_file_path(args[0]);
 
+	if (cmd_path == NULL)
+		print_error(program_name, args[0], "not found");
+
 	return (cmd_path);
 }
 
@@ -88,11 +91,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 	if (child_pid == 0)
 		execute_child(cmd_path, args, env);
 
-	else
-	{
-		wait(&status);
-		free(cmd_path);
-		return (WEXITSTATUS(status));
-	}
-	return (0);
+	wait(&status);
+	free(cmd_path);
+	return (WEXITSTATUS(status));
 }

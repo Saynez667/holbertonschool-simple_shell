@@ -11,6 +11,9 @@
   */
 int handle_builtin_commands(char **args, int num_args, char *input, char **env)
 {
+	if (!args || !args[0])
+		return (0);
+
 	if (strcmp(args[0], "exit") == 0)
 	{
 		return (shell_exit(args, input));

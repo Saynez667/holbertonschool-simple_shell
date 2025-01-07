@@ -6,7 +6,7 @@
   * @argv: Array of arguments
   * @env: Environment variables
   *
-  * Return: Last status
+  * Return: Exit status
   */
 int main(int argc __attribute__((unused)), char *argv[], char **env)
 {
@@ -15,13 +15,11 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 
 	while (1)
 	{
-		print_prompt();
+		print_prompt(); /* print_prompt gérera isatty() */
 		input_buffer = read_input();
 
-		if (!input_buffer)
+		if (!input_buffer) /* EOF (Ctrl+D) détecté */
 		{
-			if (isatty(STDIN_FILENO))
-				write(STDOUT_FILENO, "\n", 1);
 			return (status);
 		}
 
@@ -29,6 +27,4 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 		free(input_buffer);
 		input_buffer = NULL;
 	}
-
-	return (status);
 }

@@ -2,7 +2,7 @@
 
 /**
  * print_env - Prints the environment variables
- * @env: Arguments
+ * @env: Array of environment variables
  */
 void print_env(char **env)
 {
@@ -12,7 +12,7 @@ void print_env(char **env)
 	if (!env)
 		return;
 
-	for (i = 0; env[i] != NULL; i++)
+	for (i = 0; env[i]; i++)
 	{
 		str = env[i];
 		if (str)

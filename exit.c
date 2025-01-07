@@ -1,4 +1,5 @@
 #include "shell.h"
+
 /**
   * handle_exit - Handles the exit functionality
   * @input: Input value to handle
@@ -6,41 +7,37 @@
   */
 void handle_exit(char *input, int exit_status)
 {
-	free(input);
+	if (input)
+		free(input);
 	exit(exit_status);
 }
 
 /**
   * shell_exit - Handles the exit status
   * @args: Arguments to the function
-  * @input: Checks the status of exit
+  * @input: Input to be freed before exit
   *
-  * Return: Status of exit, 1 if otherwise
+  * Return: Should not return, exits the program
   */
 int shell_exit(char **args, char *input)
 {
-	char *status_str;
-	int exit_status, i;
+	int exit_status = 0;
+	int i;
 
-	if (args[1] != NULL)
+	if (!args || !input)
+		return (1);
+
+	if (args[1])
 	{
-		exit_status = 0;
-		status_str = args[1];
-
-		for (i = 0; status_str[i] != '\0'; i++)
+		for (i = 0; args[1][i]; i++)
 		{
-			if (status_str[i] < '0' || status_str[i] > '9')
+			if (args[1][i] < '0' || args[1][i] > '9')
 			{
 				handle_exit(input, 2);
-				return (1);
 			}
-			exit_status = exit_status * 10 + (status_str[i] - '0');
+			exit_status = (exit_status * 10) + (args[1][i] - '0');
 		}
-		handle_exit(input, exit_status);
 	}
-	else
-	{
-		handle_exit(input, 0);
-	}
-	return (1);
+	handle_exit(input, exit_status);
+	return (1);  /* Ne devrait jamais être atteint */
 }

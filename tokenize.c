@@ -10,28 +10,25 @@
 int tokenize_input(char *input, char *args[])
 {
 	int count = 0;
-	char *token;
+	char *token, *input_copy;
 
 	if (!input || !args)
 		return (0);
 
-	/* Skip leading whitespace */
-	while (*input == ' ' || *input == '\t' || *input == '\n')
-		input++;
-
-	if (*input == '\0')
+	/* Créer une copie pour préserver l'original */
+	input_copy = _strdup(input);
+	if (!input_copy)
 		return (0);
 
-	token = strtok(input, " \t\n");
-	while (token)
+	token = strtok(input_copy, " \t\n");
+	while (token && count < 9)  /* Réserver un espace pour NULL */
 	{
-		if (count >= 9)  /* Garde une place pour le NULL final */
-			break;
 		args[count] = token;
 		token = strtok(NULL, " \t\n");
 		count++;
 	}
 
+	/* S'assurer que le dernier élément est NULL */
 	args[count] = NULL;
 	return (count);
 }
