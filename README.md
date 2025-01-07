@@ -80,8 +80,7 @@ $ man ./man_
 ```
 
 ## Flowchart
-
-
+![flowchart simple shell ](https://github.com/user-attachments/assets/4b68c697-6787-46dd-b26d-001a1ebf7836)
 ## Usage
 
 This will create a compilation file. You can run the shell in your terminal by using this command :
