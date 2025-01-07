@@ -46,9 +46,11 @@ char *handle_command_path(char *args[], char *program_name)
 	}
 	else
 		cmd_path = get_file_path(args[0]);
-
-	if (cmd_path == NULL)
-		print_error(program_name, args[0], "not found");
+		if (cmd_path == NULL)
+		{
+			print_error(program_name, args[0], "not found");
+			return (NULL);
+		}
 
 	return (cmd_path);
 }
