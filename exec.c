@@ -20,26 +20,24 @@ void execute_command(char *input, char *argv[] __attribute__((unused)), char **e
     if (handle_builtin_commands(args, num_args, input, env) == 1)
         return;
 
-    /* Si c'est un chemin absolu ou relatif */
+    /* Check if command exists before forking */
     if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
     {
         if (access(args[0], F_OK | X_OK) == -1)
         {
             fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
-            return;
+            exit(127);
         }
         path = strdup(args[0]);
     }
     else
     {
-        /* Chercher dans PATH */
         path = get_file_path(args[0]);
-    }
-
-    if (!path)
-    {
-        fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
-        return;
+        if (!path)
+        {
+            fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
+            exit(127);
+        }
     }
 
     child_pid = fork();
@@ -47,7 +45,7 @@ void execute_command(char *input, char *argv[] __attribute__((unused)), char **e
     {
         free(path);
         perror("fork");
-        return;
+        exit(1);
     }
 
     if (child_pid == 0)
@@ -62,6 +60,8 @@ void execute_command(char *input, char *argv[] __attribute__((unused)), char **e
     else
     {
         waitpid(child_pid, &status, 0);
+        if (WIFEXITED(status))
+            exit(WEXITSTATUS(status));
     }
     free(path);
 }

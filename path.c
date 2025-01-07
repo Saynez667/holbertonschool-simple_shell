@@ -63,6 +63,9 @@ char *get_file_path(char *command)
 {
     char *path, *path_copy, *dir, *full_path;
 
+    if (command == NULL)
+        return (NULL);
+
     path = getenv("PATH");
     if (!path)
         return (NULL);
