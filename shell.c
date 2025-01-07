@@ -8,10 +8,9 @@
   *
   * Return: O Always succes
   */
-int main(int argc, char *argv[], char **env)
+int main(int argc __attribute__((unused)), char *argv[], char **env)
 {
 	char *input_buffer;
-	(void)argc;
 
 	while (1)
 	{
@@ -21,8 +20,9 @@ int main(int argc, char *argv[], char **env)
 		if (!input_buffer)
 		{
             write(STDOUT_FILENO, "\n", 1);
-            exit(0);
+            return (0);
         }
+		
 		execute_command(input_buffer, argv, env);
 		free(input_buffer);
 	}

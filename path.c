@@ -68,7 +68,7 @@ char *get_file_path(char *file_name)
         return (NULL);
 
     /* Check for absolute or relative path */
-    if (check_path_type(file_name))
+    if (file_name[0] == '/' || (file_name[0] == '.' && file_name[1] == '/'))
     {
         if (stat(file_name, &st) == 0)
         {
