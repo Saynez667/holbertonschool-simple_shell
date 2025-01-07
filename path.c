@@ -14,6 +14,15 @@ char *find_command_in_path(const char *command)
 	if (!command)
 		return (NULL);
 
+	/* Check if command is absolute path */
+	if (command[0] == '/')
+	{
+		if (stat(command, &st) == 0)
+			return (strdup(command));
+		return (NULL);
+	}
+
+	/* Search in PATH */
 	path = _getenv("PATH", environ);
 	if (!path)
 		return (NULL);
