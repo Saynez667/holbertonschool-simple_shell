@@ -38,7 +38,6 @@ int main(void)
         }
 
         full_path = find_command_in_path(first_token);
-        free(first_token);
         
         if (!full_path)
         {
@@ -46,10 +45,12 @@ int main(void)
                 fprintf(stderr, "./hsh: 1: %s: Permission denied\n", first_token);
             else
                 fprintf(stderr, "./hsh: 1: %s: not found\n", first_token);
+            free(first_token);
             free(command);
             continue;
         }
 
+        free(first_token);
         /* Only parse arguments if command exists */
         args = parse_command(command);
         if (!args)
