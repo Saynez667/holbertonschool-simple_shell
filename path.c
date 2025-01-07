@@ -33,7 +33,7 @@ char *concat_path(char *dir, char *command)
 }
 
 /**
- * get_file_path - Get's the full path of the file using stat
+ * get_file_path - Get's the full path of the file
  * @command: Command to find
  * Return: Full path of command or NULL if not found
  */
@@ -45,8 +45,12 @@ char *get_file_path(char *command)
 	if (!command || command[0] == '\0')
 		return (NULL);
 
-	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-		return (_strdup(command));
+	if (stat(command, &st) == 0)
+	{
+		if (st.st_mode & S_IXUSR)
+			return (_strdup(command));
+		return (NULL);
+	}
 
 	path = getenv("PATH");
 	if (!path)
@@ -60,8 +64,7 @@ char *get_file_path(char *command)
 	while (dir)
 	{
 		full_path = concat_path(dir, command);
-		if (full_path && stat(full_path, &st) == 0 &&
-			S_ISREG(st.st_mode) && (st.st_mode & S_IXUSR))
+		if (full_path && stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
 		{
 			free(path_copy);
 			return (full_path);

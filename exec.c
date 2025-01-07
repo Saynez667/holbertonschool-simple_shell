@@ -10,14 +10,14 @@ void execute_child(char *cmd_path, char *args[], char **env)
 {
 	if (execve(cmd_path, args, env) == -1)
 	{
-		perror(args[0]);
+		perror("Error");
 		free(cmd_path);
 		exit(127);
 	}
 }
 
 /**
- * handle_command_path - Handles command path resolution
+ * handle_command_path - Handles command path resolution using stat
  * @args: Array of arguments
  * @program_name: Name of the shell program
  * Return: Command path or NULL
@@ -27,24 +27,22 @@ char *handle_command_path(char *args[], char *program_name)
 	char *cmd_path = NULL;
 	struct stat st;
 
-	if (!args || !args[0])
-		return (NULL);
-
-	/* Si la commande contient un slash, c'est un chemin */
-	if (strchr(args[0], '/'))
+	if (!args[0] || args[0][0] == '\0')
 	{
-		if (stat(args[0], &st) == 0 && S_ISREG(st.st_mode) &&
-			(st.st_mode & S_IXUSR))
-		{
+		print_error(program_name, "", "not found");
+		return (NULL);
+	}
+
+	if (strchr(args[0], '/') != NULL)
+	{
+		if (stat(args[0], &st) == 0 && (st.st_mode & S_IXUSR))
 			return (_strdup(args[0]));
-		}
 		print_error(program_name, args[0], "not found");
 		return (NULL);
 	}
 
-	/* Sinon, cherche dans PATH */
 	cmd_path = get_file_path(args[0]);
-	if (!cmd_path)
+	if (cmd_path == NULL)
 		print_error(program_name, args[0], "not found");
 
 	return (cmd_path);
@@ -74,7 +72,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 		return (0);
 
 	cmd_path = handle_command_path(args, program_name);
-	if (!cmd_path)
+	if (cmd_path == NULL)
 		return (127);
 
 	child_pid = fork();
