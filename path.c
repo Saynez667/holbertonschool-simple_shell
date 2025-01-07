@@ -40,13 +40,12 @@ char *concat_path(char *dir, char *command)
 char *get_file_path(char *command)
 {
 	char *path, *path_copy, *dir, *full_path;
-	struct stat st;
 
 	if (!command)
 		return (NULL);
 
-	/* First check if command exists in current directory */
-	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+	/* Vérifie si la commande existe dans le répertoire courant */
+	if (access(command, X_OK) == 0)
 		return (_strdup(command));
 
 	path = getenv("PATH");
@@ -72,7 +71,6 @@ char *get_file_path(char *command)
 		}
 		dir = strtok(NULL, ":");
 	}
-
 	free(path_copy);
 	return (NULL);
 }

@@ -26,9 +26,12 @@ char *handle_command_path(char *args[], char *program_name)
 {
 	char *cmd_path = NULL;
 
+	if (!args[0])
+		return (NULL);
+
 	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
 	{
-		if (access(args[0], F_OK) == -1)
+		if (access(args[0], X_OK) == -1)
 		{
 			print_error(program_name, args[0], "not found");
 			return (NULL);
@@ -36,9 +39,8 @@ char *handle_command_path(char *args[], char *program_name)
 		cmd_path = _strdup(args[0]);
 	}
 	else
-	{
 		cmd_path = get_file_path(args[0]);
-	}
+
 	return (cmd_path);
 }
 
