@@ -6,9 +6,15 @@
  */
 void print_env(char **env)
 {
+    int i;
+    char *str;
+
     while (*env != NULL)
     {
-        write(1, *env, strlen(*env));
+        str = *env;
+        for (i = 0; str[i]; i++)
+            ;
+        write(1, str, i);
         write(1, "\n", 1);
         env++;
     }

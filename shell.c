@@ -10,27 +10,22 @@
   */
 int main(int argc __attribute__((unused)), char *argv[], char **env)
 {
-    char *input_buffer;
-    int status = 0;
+	char *input_buffer;
 
-    while (1)
-    {
-        print_prompt();
-        input_buffer = read_input();
+	while (1)
+	{
+		print_prompt();
+		input_buffer = read_input();
 
-        if (!input_buffer)
-        {
+		if (!input_buffer)
+		{
             write(STDOUT_FILENO, "\n", 1);
-            return (status);
+            return (0);
         }
-        
-        if (strlen(input_buffer) > 0 && input_buffer[0] != '\n')
-        {
-            execute_command(input_buffer, argv, env, argv[0]);
-            status = 127;  // Set default error status
-        }
-        free(input_buffer);
-    }
+		
+		execute_command(input_buffer, argv, env, argv[0]);
+		free(input_buffer);
+	}
 
-    return (status);
+	return (0);
 }
