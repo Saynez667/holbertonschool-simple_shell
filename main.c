@@ -20,7 +20,14 @@ int main(void)
         prompt();
         command = read_input();
 
-        if (!command || command[0] == '\0' || strcmp(command, "\n") == 0)
+        /* Correct handling of Ctrl+D (EOF) */
+        if (!command)
+        {
+            write(STDOUT_FILENO, "\n", 1);  /* Print newline on EOF */
+            break;  /* Exit the loop */
+        }
+
+        if (command[0] == '\0' || strcmp(command, "\n") == 0)
         {
             free(command);
             continue;
@@ -28,21 +35,37 @@ int main(void)
 
         first_token = strtok(strdup(command), " \t\r\n\a");
         if (!first_token)
-            continue; /* Pas de fork */
-
-        if (first_token[0] == '/')
-            full_path = _strdup(first_token);
-        else
-            full_path = find_command_in_path(first_token);
-
-        if (!full_path || access(full_path, X_OK) == -1)
         {
-            if (access(first_token, F_OK) == 0)
-                fprintf(stderr, "./hsh: 1: %s: Permission denied\n", first_token);
+            free(command);
+            continue;
+        }
+
+        /* Vérification de la commande dans PATH */
+        full_path = find_command_in_path(first_token);
+        if (!full_path && first_token[0] != '/')
+        {
+            fprintf(stderr, "./hsh: 1: %s: not found\n", first_token);
+            free(first_token);
+            free(command);
+            continue;
+        }
+
+        /* Si c'est un chemin absolu, vérifier directement */
+        if (first_token[0] == '/' && access(first_token, F_OK) != 0)
+        {
+            fprintf(stderr, "./hsh: 1: %s: not found\n", first_token);
+            free(first_token);
+            free(command);
+            continue;
+        }
+
+        if (access(full_path ? full_path : first_token, X_OK) == -1)
+        {
+            fprintf(stderr, "./hsh: 1: %s: Permission denied\n", first_token);
             free(first_token);
             free(command);
             free(full_path);
-            continue; /* Pas de fork */
+            continue;
         }
 
         free(first_token);
