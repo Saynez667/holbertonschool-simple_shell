@@ -4,66 +4,50 @@
  * concat_path - Concatenates directory and command
  * @dir: Directory path
  * @command: Command name
- * Return: Full path
+ * Return: Full path or NULL on failure
  */
 char *concat_path(char *dir, char *command)
 {
-	int dir_len = 0, cmd_len = 0;
+	int dir_len, cmd_len;
 	char *full_path;
+
+	if (!dir || !command)
+		return (NULL);
 
 	dir_len = _strlen(dir);
 	cmd_len = _strlen(command);
 
-	full_path = malloc(dir_len + cmd_len + 2);
+	full_path = malloc(dir_len + cmd_len + 2); /* +2 for '/' and '\0' */
 	if (!full_path)
 		return (NULL);
 
 	_strcpy(full_path, dir);
-	full_path[dir_len] = '/';
-	_strcpy(full_path + dir_len + 1, command);
+	if (dir[dir_len - 1] != '/')
+	{
+		full_path[dir_len] = '/';
+		dir_len++;
+	}
+	_strcpy(full_path + dir_len, command);
 
 	return (full_path);
 }
 
 /**
- * try_path - Try to find command in a directory
- * @dir: Directory to search
- * @command: Command to find
- * @path_copy: PATH copy to free if needed
- * Return: Command path or NULL
- */
-char *try_path(char *dir, char *command, char *path_copy)
-{
-	char *full_path;
-
-	full_path = concat_path(dir, command);
-	if (!full_path)
-	{
-		free(path_copy);
-		return (NULL);
-	}
-
-	if (check_path(full_path))
-	{
-		free(path_copy);
-		return (full_path);
-	}
-
-	free(full_path);
-	return (NULL);
-}
-
-/**
  * get_file_path - Get's the full path of the file
  * @command: Command to find
- * Return: Full path of command or NULL
+ * Return: Full path of command or NULL if not found
  */
 char *get_file_path(char *command)
 {
-	char *path, *path_copy, *dir, *result;
+	char *path, *path_copy, *dir, *full_path;
+	struct stat st;
 
 	if (!command)
 		return (NULL);
+
+	/* First check if command exists in current directory */
+	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+		return (_strdup(command));
 
 	path = getenv("PATH");
 	if (!path)
@@ -76,9 +60,16 @@ char *get_file_path(char *command)
 	dir = strtok(path_copy, ":");
 	while (dir)
 	{
-		result = try_path(dir, command, path_copy);
-		if (result)
-			return (result);
+		full_path = concat_path(dir, command);
+		if (full_path)
+		{
+			if (access(full_path, X_OK) == 0)
+			{
+				free(path_copy);
+				return (full_path);
+			}
+			free(full_path);
+		}
 		dir = strtok(NULL, ":");
 	}
 

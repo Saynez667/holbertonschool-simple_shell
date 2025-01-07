@@ -1,45 +1,45 @@
 #include "shell.h"
-
 /**
- * check_path - Checks if command exists in given path
- * @path: Path to check
- * Return: 1 if exists and executable, 0 if not
+ * execute_child - Handles the child process execution
+ * @cmd_path: Path to the command to execute
+ * @args: Array of arguments
+ * @env: Environment variables
+ * Return: void
  */
-int check_path(char *path)
+void execute_child(char *cmd_path, char *args[], char **env)
 {
-	struct stat st;
-
-	if (stat(path, &st) == -1 || !(st.st_mode & S_IXUSR))
-		return (0);
-	return (1);
+	if (execve(cmd_path, args, env) == -1)
+	{
+		perror("Error");
+		free(cmd_path);
+		exit(127);
+	}
 }
 
 /**
- * get_command_path - Gets the path for a command
- * @args: Command arguments
- * @program_name: Shell name for errors
- * Return: Path to command or NULL
+ * handle_command_path - Handles command path resolution
+ * @args: Array of arguments
+ * @program_name: Name of the shell program
+ * Return: Command path or NULL
  */
-char *get_command_path(char **args, char *program_name)
+char *handle_command_path(char *args[], char *program_name)
 {
-	char *path = NULL;
+	char *cmd_path = NULL;
 
 	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
 	{
-		if (!check_path(args[0]))
+		if (access(args[0], F_OK) == -1)
 		{
 			print_error(program_name, args[0], "not found");
 			return (NULL);
 		}
-		path = _strdup(args[0]);
+		cmd_path = _strdup(args[0]);
 	}
 	else
 	{
-		path = get_file_path(args[0]);
-		if (!path)
-			print_error(program_name, args[0], "not found");
+		cmd_path = get_file_path(args[0]);
 	}
-	return (path);
+	return (cmd_path);
 }
 
 /**
@@ -53,7 +53,7 @@ void execute_command(char *input, char *argv[] __attribute__((unused)),
 		char **env, char *program_name)
 {
 	char *args[10];
-	char *path = NULL;
+	char *cmd_path = NULL;
 	int status, num_args;
 	pid_t child_pid;
 
@@ -64,24 +64,25 @@ void execute_command(char *input, char *argv[] __attribute__((unused)),
 	if (handle_builtin_commands(args, num_args, input, env) == 1)
 		return;
 
-	path = get_command_path(args, program_name);
-	if (!path)
+	cmd_path = handle_command_path(args, program_name);
+	if (cmd_path == NULL)
+	{
+		print_error(program_name, args[0], "not found");
 		return;
+	}
 
 	child_pid = fork();
 	if (child_pid == -1)
 	{
-		free(path);
+		perror("Error");
+		free(cmd_path);
 		return;
 	}
 
 	if (child_pid == 0)
-	{
-		execve(path, args, env);
-		perror("execve");
-		free(path);
-		exit(127);
-	}
-	waitpid(child_pid, &status, 0);
-	free(path);
+		execute_child(cmd_path, args, env);
+	else
+		wait(&status);
+
+	free(cmd_path);
 }
