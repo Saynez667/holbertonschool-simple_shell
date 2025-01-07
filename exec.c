@@ -6,14 +6,13 @@
   * @argv: Array of argument
   * @env: Environment variables
   */
-void execute_command(char *input, char *argv[], char **env)
+void execute_command(char *input, char *argv[] __attribute__((unused)), char **env)
 {
 	char *args[10];
-	char *path, *shell_name;
+	char *path;
 	int status, num_args;
 	pid_t child_pid;
 
-	shell_name = argv[0];
 	num_args = tokenize_input(input, args);
 
 	if (num_args == 0)
