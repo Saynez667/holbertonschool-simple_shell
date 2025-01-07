@@ -14,6 +14,15 @@ char *find_command_in_path(const char *command)
     if (!command)
         return (NULL);
 
+    /* Check for current directory command (./) */
+    if (command[0] == '.' && command[1] == '/')
+    {
+        if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+            return (_strdup(command));
+        return (NULL);
+    }
+
+    /* Check for absolute path */
     if (command[0] == '/')
     {
         if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
