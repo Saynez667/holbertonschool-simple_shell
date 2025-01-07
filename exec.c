@@ -17,15 +17,19 @@ int execute_command(char **args, char *full_path)
 
     child_pid = fork();
     if (child_pid == -1)
+    {
+        perror("fork");
         return (1);
+    }
 
     if (child_pid == 0)
     {
-        execve(full_path, args, environ);
-        perror("execve");
-        exit(126);
+        if (execve(full_path, args, environ) == -1)
+        {
+            perror("execve");
+            exit(126);
+        }
     }
-
     wait(&status);
     return (WEXITSTATUS(status));
 }
