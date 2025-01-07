@@ -59,29 +59,38 @@ char *get_file_loc(char *path, char *file_name)
  * @file_name: Argument name
  * Return: The full path argument to the file
  */
-char *get_file_path(char *file_name)
+char *get_file_path(char *command)
 {
-    char *path;
+    char *path, *path_copy, *dir, *full_path;
     struct stat st;
 
-    if (!file_name)
-        return (NULL);
-
-    /* Check for absolute or relative path */
-    if (file_name[0] == '/' || (file_name[0] == '.' && file_name[1] == '/'))
-    {
-        if (stat(file_name, &st) == 0)
-        {
-            if (access(file_name, X_OK) == 0)
-            return (strdup(file_name));
-            return (NULL);
-        }
-    }
-
-    /* Search in PATH */
     path = getenv("PATH");
     if (!path)
         return (NULL);
 
-    return (get_file_loc(path, file_name));
+    path_copy = strdup(path);
+    if (!path_copy)
+        return (NULL);
+
+    dir = strtok(path_copy, ":");
+    while (dir)
+    {
+        full_path = malloc(strlen(dir) + strlen(command) + 2);
+        if (!full_path)
+        {
+            free(path_copy);
+            return (NULL);
+        }
+        sprintf(full_path, "%s/%s", dir, command);
+        
+        if (stat(full_path, &st) == 0)
+        {
+            free(path_copy);
+            return (full_path);
+        }
+        free(full_path);
+        dir = strtok(NULL, ":");
+    }
+    free(path_copy);
+    return (NULL);
 }
