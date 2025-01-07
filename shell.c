@@ -19,10 +19,10 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 
 		if (!input_buffer)
 		{
-            write(STDOUT_FILENO, "\n", 1);
-            return (0);
-        }
-		
+			write(STDOUT_FILENO, "\n", 1);
+			return (0);
+		}
+
 		execute_command(input_buffer, argv, env, argv[0]);
 		free(input_buffer);
 	}
