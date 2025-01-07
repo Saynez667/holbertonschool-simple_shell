@@ -17,6 +17,12 @@ int main(int argc, char *argv[], char **env)
 	{
 		print_prompt();
 		input_buffer = read_input();
+
+		if (!input_buffer)
+		{
+            write(STDOUT_FILENO, "\n", 1);
+            exit(0);
+        }
 		execute_command(input_buffer, argv, env);
 		free(input_buffer);
 	}

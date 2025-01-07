@@ -40,7 +40,7 @@ int shell_exit(char **args, char *input)
 	}
 	else
 	{
-		handle_exit(input, 127);
+		handle_exit(input, 0);
 	}
 	return (1);
 }

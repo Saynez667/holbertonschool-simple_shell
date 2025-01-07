@@ -9,16 +9,16 @@
   */
 int tokenize_input(char *input, char *args[])
 {
-	int count;
+	int count = 0;
 	char *token;
 
 	count = 0;
-	token = strtok(input, " \n");
+	token = strtok(input, " \t\n");
 
 	while (token)
 	{
 		args[count] = token;
-		token = strtok(NULL, " \n");
+		token = strtok(NULL, " \t\n");
 		count++;
 	}
 

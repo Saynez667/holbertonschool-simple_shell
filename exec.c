@@ -47,12 +47,17 @@ void execute_command(char *input, char *argv[] __attribute__((unused)), char **e
 	{
 		if (execve(path, args, env) == -1)
 		{
-			perror(args[0]);
-            exit(126);
+			fprintf(stderr, "./hsh: 1: %s: not found\n", args[0]);
+			free(path);
+			exit(127);
 		}
 	}
 	else
+	{
 		wait(&status);
+		if (WIFEXITED(status))
+        status = WEXITSTATUS(status);
+	}
 
 	free(path);
 }

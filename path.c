@@ -70,9 +70,12 @@ char *get_file_path(char *file_name)
     /* Check for absolute or relative path */
     if (check_path_type(file_name))
     {
-        if (stat(file_name, &st) == 0 && access(file_name, X_OK) == 0)
+        if (stat(file_name, &st) == 0)
+        {
+            if (access(file_name, X_OK) == 0)
             return (strdup(file_name));
-        return (NULL);
+            return (NULL);
+        }
     }
 
     /* Search in PATH */
