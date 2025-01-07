@@ -1,48 +1,49 @@
 #include "shell.h"
 
 /**
- * execute_command - Execute command with arguments
- * @args: Command and arguments
- * @full_path: Full path of the command
- *
- * Return: Exit status
- */
-int execute_command(char **args, char *full_path)
+  * execute_command - Executes the input from the buffer
+  * @input: The argument from the buffer
+  * @argv: Array of argument
+  * @env: Environment variables
+  */
+void execute_command(char *input, char *argv[], char **env)
 {
-    pid_t child_pid;
-    int status;
+	char *args[10];
+	char *path, *shell_name;
+	int status, num_args;
+	pid_t child_pid;
 
-    /* Validate arguments */
-    if (!args || !args[0] || !full_path)
-        return (1); /* Pas de fork */
+	shell_name = argv[0];
+	num_args = tokenize_input(input, args);
 
-    /* Check if command exists and is executable */
-    if (access(full_path, F_OK) == -1)
-        return (126); /* Pas de fork */
+	if (num_args == 0)
+		return;
+	if (handle_builtin_commands(args, num_args, input, env) == 1)
+		return;
+	path = get_file_path(args[0]);
 
-    /* Create child process */
-    child_pid = fork(); /* Fork uniquement si tout est OK */
-    if (child_pid == -1)
-    {
-        perror("fork");
-        return (1);
-    }
+	child_pid = fork();
 
-    if (child_pid == 0)
-    {
-        /* Execute command in child process */
-        if (execve(full_path, args, environ) == -1)
-        {
-            perror("execve");
-            exit(127);
-        }
-    }
-    else
-    {
-        /* Wait for child process to complete */
-        wait(&status);
-        return (WEXITSTATUS(status));
-    }
+	if (child_pid == -1)
+	{
+		perror("Error: Failed to create");
+		free(input);
+		exit(1);
+	}
 
-    return (1);  /* Should never reach here */
+	if (child_pid == 0)
+	{
+		if (execve(path, args, NULL) == -1)
+		{
+			write(2, shell_name, strlen(shell_name));
+			write(2, ": 1: ", 5);
+			write(2, args[0], strlen(args[0]));
+			write(2, ": not found\n", 12);
+			exit(127);
+		}
+	}
+	else
+		wait(&status);
+
+	free(path);
 }

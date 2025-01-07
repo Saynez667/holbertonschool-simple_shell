@@ -1,17 +1,10 @@
 #include "shell.h"
 
 /**
- * prompt - Displays shell prompt if in interactive mode
- *
- * Return: void
- */
-void prompt(void)
+  * print_prompt - Print the prompt to the user
+  */
+void print_prompt(void)
 {
-	const char *prompt_str = "ValakShell$ ";
-
 	if (isatty(STDIN_FILENO))
-	{
-		if (write(STDOUT_FILENO, prompt_str, _strlen(prompt_str)) == -1)
-			perror("write");
-	}
+		write(STDOUT_FILENO, "ValakShell$ ", 12);
 }

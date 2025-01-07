@@ -1,46 +1,32 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-/* Libraries */
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
 
-/* Macros */
-#define BUFFER_SIZE 1024
-
-/* Input/Output functions */
-void prompt(void);
+/* Execute Functions */
+int startsWithForwardSlash(char const *str);
+char *get_file_path(char *file_name);
+char *get_file_loc(char *path, char *file_name);
+void execute_command(char *input, char *argv[], char **env);
 char *read_input(void);
-void _print_error(const char *message);
+void print_prompt(void);
+int tokenize_input(char *input, char *args[]);
 
-/* Command processing functions */
-char **parse_command(char *command);
-int execute_command(char **args, char *full_path);
-char *find_command_in_path(const char *command);
-
-/* Environment functions */
-char *_getenv(const char *name, char **environ);
-
-/* Memory management */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-void free_args(char **args);
-
-/* String utilities */
-char *_strdup(const char *str);
-int _strcmp(const char *s1, const char *s2);
-int _strlen(const char *s);
-char *_strchr(const char *s, int c);
-int _atoi(const char *str);
-
-/* Signal handling */
-void handle_signal(int sig);
-
-/* Global variables */
-extern char **environ;
+/* Built in Functions */
+int handle_builtin_commands(char **args,
+		int num_args, char *input,
+		char **env);
+void print_env(char **env);
+void handle_cd(char **args, int num_args);
+void handle_exit(char *input, int exit_status);
+int shell_exit(char **args, char *input);
 
 #endif /* SHELL_H */

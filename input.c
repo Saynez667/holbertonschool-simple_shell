@@ -1,36 +1,25 @@
 #include "shell.h"
 
 /**
- * read_input - Reads user input from stdin
- *
- * Return: Pointer to input string, NULL on EOF or error
- */
+  * read_input - Reads the input from the users
+  *
+  * Return: Character variable to the program
+  */
 char *read_input(void)
 {
-	char *line = NULL;
-	size_t bufsize = 0;
-	ssize_t chars_read;
-	int i;
+	char *input_buffer;
+	size_t buf_size;
+	ssize_t nread;
 
-	chars_read = getline(&line, &bufsize, stdin);
-	if (chars_read == -1)
+	input_buffer = NULL;
+	buf_size = 0;
+	nread = getline(&input_buffer, &buf_size, stdin);
+
+	if (nread == -1)
 	{
-		free(line);
-		if (feof(stdin))
-			return (NULL);
-		perror("getline");
-		return (NULL);
+		free(input_buffer);
+		exit(0);
 	}
 
-	/* Remove trailing newline */
-	for (i = 0; line[i]; i++)
-	{
-		if (line[i] == '\n')
-		{
-			line[i] = '\0';
-			break;
-		}
-	}
-
-	return (line);
+	return (input_buffer);
 }
