@@ -8,21 +8,21 @@
  */
 char *concat_path(char *dir, char *command)
 {
-    int dir_len = 0, cmd_len = 0;
-    char *full_path;
+	int dir_len = 0, cmd_len = 0;
+	char *full_path;
 
-    dir_len = _strlen(dir);
-    cmd_len = _strlen(command);
+	dir_len = _strlen(dir);
+	cmd_len = _strlen(command);
 
-    full_path = malloc(dir_len + cmd_len + 2);
-    if (!full_path)
-        return (NULL);
+	full_path = malloc(dir_len + cmd_len + 2);
+	if (!full_path)
+		return (NULL);
 
-    _strcpy(full_path, dir);
-    full_path[dir_len] = '/';
-    _strcpy(full_path + dir_len + 1, command);
+	_strcpy(full_path, dir);
+	full_path[dir_len] = '/';
+	_strcpy(full_path + dir_len + 1, command);
 
-    return (full_path);
+	return (full_path);
 }
 
 /**
@@ -32,38 +32,37 @@ char *concat_path(char *dir, char *command)
  */
 char *get_file_path(char *command)
 {
-    char *path, *path_copy, *dir, *full_path;
-    struct stat st;
+	char *path, *path_copy, *dir, *full_path;
 
-    if (command == NULL)
-        return (NULL);
+	if (command == NULL)
+		return (NULL);
 
-    path = getenv("PATH");
-    if (path == NULL)
-        return (NULL);
+	path = getenv("PATH");
+	if (path == NULL)
+		return (NULL);
 
-    path_copy = _strdup(path);
-    if (path_copy == NULL)
-        return (NULL);
+	path_copy = _strdup(path);
+	if (path_copy == NULL)
+		return (NULL);
 
-    dir = strtok(path_copy, ":");
-    while (dir)
-    {
-        full_path = concat_path(dir, command);
-        if (full_path == NULL)
-        {
-            free(path_copy);
-            return (NULL);
-        }
+	dir = strtok(path_copy, ":");
+	while (dir)
+	{
+		full_path = concat_path(dir, command);
+		if (full_path == NULL)
+		{
+			free(path_copy);
+			return (NULL);
+		}
 
-        if (stat(full_path, &st) == 0)
-        {
-            free(path_copy);
-            return (full_path);
-        }
-        free(full_path);
-        dir = strtok(NULL, ":");
-    }
-    free(path_copy);
-    return (NULL);
+		if (access(full_path, F_OK | X_OK) == 0)
+		{
+			free(path_copy);
+			return (full_path);
+		}
+		free(full_path);
+		dir = strtok(NULL, ":");
+	}
+	free(path_copy);
+	return (NULL);
 }
