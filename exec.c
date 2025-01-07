@@ -9,7 +9,7 @@
 void execute_command(char *input, char *argv[] __attribute__((unused)), char **env, char *program_name)
 {
     char *args[10];
-    char *path;
+    char *path = NULL;
     int status, num_args;
     pid_t child_pid;
 
@@ -23,39 +23,30 @@ void execute_command(char *input, char *argv[] __attribute__((unused)), char **e
     /* Si c'est un chemin absolu ou relatif */
     if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
     {
-        if (access(args[0], F_OK) == -1)
+        if (access(args[0], F_OK | X_OK) == -1)
         {
             fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
             return;
         }
-        if (access(args[0], X_OK) == -1)
-        {
-            fprintf(stderr, "%s: 1: %s: Permission denied\n", program_name, args[0]);
-            return;
-        }
         path = strdup(args[0]);
-        if (path == NULL)
-        {
-            perror("strdup");
-            return;
-        }
     }
-
     else
     {
         /* Chercher dans PATH */
         path = get_file_path(args[0]);
-        if (!path)
-        {
-            fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
-            return;
-        }
+    }
+
+    if (!path)
+    {
+        fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
+        return;
     }
 
     child_pid = fork();
     if (child_pid == -1)
     {
         free(path);
+        perror("fork");
         return;
     }
 
@@ -64,6 +55,7 @@ void execute_command(char *input, char *argv[] __attribute__((unused)), char **e
         if (execve(path, args, env) == -1)
         {
             perror("execve");
+            free(path);
             exit(127);
         }
     }

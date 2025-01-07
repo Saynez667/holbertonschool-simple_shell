@@ -62,7 +62,6 @@ char *get_file_loc(char *path, char *file_name)
 char *get_file_path(char *command)
 {
     char *path, *path_copy, *dir, *full_path;
-    struct stat st;
 
     path = getenv("PATH");
     if (!path)
@@ -83,7 +82,7 @@ char *get_file_path(char *command)
         }
         sprintf(full_path, "%s/%s", dir, command);
         
-        if (stat(full_path, &st) == 0)
+        if (access(full_path, F_OK | X_OK) == 0)
         {
             free(path_copy);
             return (full_path);
