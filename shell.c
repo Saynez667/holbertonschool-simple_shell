@@ -23,7 +23,7 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
             return (0);
         }
 		
-		execute_command(input_buffer, argv, env);
+		execute_command(input_buffer, argv, env, argv[0]);
 		free(input_buffer);
 	}
 

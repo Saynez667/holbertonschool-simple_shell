@@ -6,7 +6,7 @@
   * @argv: Array of argument
   * @env: Environment variables
   */
-void execute_command(char *input, char *argv[] __attribute__((unused)), char **env)
+void execute_command(char *input, char *argv[] __attribute__((unused)), char **env, char *program_name)
 {
     char *args[10];
     char *path;
@@ -25,23 +25,29 @@ void execute_command(char *input, char *argv[] __attribute__((unused)), char **e
     {
         if (access(args[0], F_OK) == -1)
         {
-            fprintf(stderr, "./hsh: 1: %s: not found\n", args[0]);
+            fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
             return;
         }
         if (access(args[0], X_OK) == -1)
         {
-            fprintf(stderr, "./hsh: 1: %s: Permission denied\n", args[0]);
+            fprintf(stderr, "%s: 1: %s: Permission denied\n", program_name, args[0]);
             return;
         }
         path = strdup(args[0]);
+        if (path == NULL)
+        {
+            perror("strdup");
+            return;
+        }
     }
+
     else
     {
         /* Chercher dans PATH */
         path = get_file_path(args[0]);
         if (!path)
         {
-            fprintf(stderr, "./hsh: 1: %s: not found\n", args[0]);
+            fprintf(stderr, "%s: 1: %s: not found\n", program_name, args[0]);
             return;
         }
     }
