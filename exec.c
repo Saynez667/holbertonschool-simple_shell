@@ -18,26 +18,31 @@ void execute_child(char *cmd_path, char **args, char **env)
 }
 
 /**
- * get_token_count - Count number of tokens
- * @args: Array of tokens
+ * is_executable - Checks if file exists and is executable
+ * @path: Path to check
  *
- * Return: Number of tokens
+ * Return: 1 if executable, 0 otherwise
  */
-int get_token_count(char **args)
+int is_executable(char *path)
 {
-	int count = 0;
+	struct stat st;
 
-	if (!args)
+	if (!path)
 		return (0);
 
-	while (args[count])
-		count++;
+	if (stat(path, &st) == 0)
+	{
+		if (S_ISREG(st.st_mode) && (st.st_mode & S_IXUSR))
+			return (1);
+		errno = EACCES;
+		return (0);
+	}
 
-	return (count);
+	return (0);
 }
 
 /**
- * handle_command_path - Handles command path resolution using stat
+ * handle_command_path - Handles command path resolution
  * @args: Array of arguments
  * @program_name: Name of the shell program
  *
@@ -46,30 +51,23 @@ int get_token_count(char **args)
 char *handle_command_path(char **args, char *program_name)
 {
 	char *cmd_path = NULL;
-	struct stat st;
 
-	if (!args[0])
+	if (!args || !args[0])
 		return (NULL);
 
-	if (_strchr(args[0], '/') != NULL)
+	if (_strchr(args[0], '/'))
 	{
-		if (stat(args[0], &st) == -1)
-		{
-			print_error(program_name, args[0], "not found");
-			return (NULL);
-		}
-		if (!(st.st_mode & S_IXUSR))
-		{
-			print_error(program_name, args[0], "Permission denied");
-			return (NULL);
-		}
-		cmd_path = _strdup(args[0]);
+		if (is_executable(args[0]))
+			cmd_path = _strdup(args[0]);
 	}
 	else
-	{
 		cmd_path = get_file_path(args[0]);
-		if (cmd_path == NULL)
-			print_error(program_name, args[0], "not found");
+
+	if (!cmd_path)
+	{
+		print_error(program_name, args[0],
+				errno == EACCES ? "Permission denied" : "not found");
+		return (NULL);
 	}
 
 	return (cmd_path);
@@ -103,7 +101,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 	}
 
 	cmd_path = handle_command_path(args, program_name);
-	if (cmd_path == NULL)
+	if (!cmd_path)
 	{
 		free_tokens(args, num_args);
 		return (127);
