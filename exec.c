@@ -6,14 +6,34 @@
  * @args: Array of arguments
  * @env: Environment variables
  */
-void execute_child(char *cmd_path, char *args[], char **env)
+void execute_child(char *cmd_path, char **args, char **env)
 {
 	if (execve(cmd_path, args, env) == -1)
 	{
 		perror("Error");
 		free(cmd_path);
+		free_tokens(args, get_token_count(args));
 		exit(127);
 	}
+}
+
+/**
+ * get_token_count - Count number of tokens
+ * @args: Array of tokens
+ *
+ * Return: Number of tokens
+ */
+int get_token_count(char **args)
+{
+	int count = 0;
+
+	if (!args)
+		return (0);
+
+	while (args[count])
+		count++;
+
+	return (count);
 }
 
 /**
@@ -23,7 +43,7 @@ void execute_child(char *cmd_path, char *args[], char **env)
  *
  * Return: Command path or NULL
  */
-char *handle_command_path(char *args[], char *program_name)
+char *handle_command_path(char **args, char *program_name)
 {
 	char *cmd_path = NULL;
 	struct stat st;
@@ -77,17 +97,24 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 		return (0);
 
 	if (handle_builtin_commands(args, num_args, input, env) == 1)
+	{
+		free_tokens(args, num_args);
 		return (0);
+	}
 
 	cmd_path = handle_command_path(args, program_name);
 	if (cmd_path == NULL)
+	{
+		free_tokens(args, num_args);
 		return (127);
+	}
 
 	child_pid = fork();
 	if (child_pid == -1)
 	{
 		perror("Error");
 		free(cmd_path);
+		free_tokens(args, num_args);
 		return (1);
 	}
 
@@ -96,5 +123,6 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 
 	waitpid(child_pid, &status, 0);
 	free(cmd_path);
+	free_tokens(args, num_args);
 	return (WEXITSTATUS(status));
 }

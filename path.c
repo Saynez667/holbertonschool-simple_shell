@@ -34,50 +34,59 @@ char *concat_path(char *dir, char *command)
 }
 
 /**
- * trim_spaces - Removes leading spaces from command
+ * trim_spaces - Removes leading and trailing spaces from command
  * @command: Command string to trim
  *
  * Return: Pointer to first non-space character
  */
 char *trim_spaces(char *command)
 {
+	char *end;
+
 	if (!command)
 		return (NULL);
 
 	while (*command == ' ')
 		command++;
 
+	if (*command == '\0')
+		return (command);
+
+	end = command + _strlen(command) - 1;
+	while (end > command && *end == ' ')
+		end--;
+
+	*(end + 1) = '\0';
 	return (command);
 }
 
 /**
- * get_file_path - Get's the full path of the file
- * @command: Command to find
+ * check_current_dir - Check if command exists in current directory
+ * @command: Command to check
  *
- * Return: Full path of command or NULL if not found
+ * Return: Duplicated command string if found, NULL otherwise
  */
-char *get_file_path(char *command)
+char *check_current_dir(char *command)
 {
-	char *path, *path_copy, *dir, *full_path;
 	struct stat st;
 
-	if (!command)
-		return (NULL);
+	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+		return (_strdup(command));
 
-	command = trim_spaces(command);
-	if (!command)
-		return (NULL);
+	return (NULL);
+}
 
-	if (strchr(command, '/') != NULL)
-	{
-		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-			return (_strdup(command));
-		return (NULL);
-	}
-
-	path = getenv("PATH");
-	if (!path)
-		return (NULL);
+/**
+ * search_path - Search command in PATH directories
+ * @command: Command to find
+ * @path: PATH environment variable
+ *
+ * Return: Full path if found, NULL otherwise
+ */
+char *search_path(char *command, char *path)
+{
+	char *path_copy, *dir, *full_path;
+	struct stat st;
 
 	path_copy = _strdup(path);
 	if (!path_copy)
@@ -97,4 +106,35 @@ char *get_file_path(char *command)
 	}
 	free(path_copy);
 	return (NULL);
+}
+
+/**
+ * get_file_path - Get's the full path of the file
+ * @command: Command to find
+ *
+ * Return: Full path of command or NULL if not found
+ */
+char *get_file_path(char *command)
+{
+	char *path, *full_path;
+
+	if (!command)
+		return (NULL);
+
+	command = trim_spaces(command);
+	if (!command || *command == '\0')
+		return (NULL);
+
+	if (command[0] == '.' || command[0] == '/')
+		return (check_current_dir(command));
+
+	path = getenv("PATH");
+	if (!path)
+		return (check_current_dir(command));
+
+	full_path = search_path(command, path);
+	if (full_path)
+		return (full_path);
+
+	return (check_current_dir(command));
 }
