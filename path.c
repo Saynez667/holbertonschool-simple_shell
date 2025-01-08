@@ -34,81 +34,6 @@ char *concat_path(char *dir, char *command)
 }
 
 /**
- * trim_spaces - Removes leading and trailing spaces from command
- * @command: Command string to trim
- *
- * Return: Pointer to first non-space character
- */
-char *trim_spaces(char *command)
-{
-	char *end;
-
-	if (!command)
-		return (NULL);
-
-	while (*command == ' ')
-		command++;
-
-	if (*command == '\0')
-		return (command);
-
-	end = command + _strlen(command) - 1;
-	while (end > command && *end == ' ')
-		end--;
-
-	*(end + 1) = '\0';
-	return (command);
-}
-
-/**
- * check_current_dir - Check if command exists in current directory
- * @command: Command to check
- *
- * Return: Duplicated command string if found, NULL otherwise
- */
-char *check_current_dir(char *command)
-{
-	struct stat st;
-
-	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-		return (_strdup(command));
-
-	return (NULL);
-}
-
-/**
- * search_path - Search command in PATH directories
- * @command: Command to find
- * @path: PATH environment variable
- *
- * Return: Full path if found, NULL otherwise
- */
-char *search_path(char *command, char *path)
-{
-	char *path_copy, *dir, *full_path;
-	struct stat st;
-
-	path_copy = _strdup(path);
-	if (!path_copy)
-		return (NULL);
-
-	dir = strtok(path_copy, ":");
-	while (dir)
-	{
-		full_path = concat_path(dir, command);
-		if (full_path && stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
-		{
-			free(path_copy);
-			return (full_path);
-		}
-		free(full_path);
-		dir = strtok(NULL, ":");
-	}
-	free(path_copy);
-	return (NULL);
-}
-
-/**
  * get_file_path - Get's the full path of the file
  * @command: Command to find
  *
@@ -116,25 +41,48 @@ char *search_path(char *command, char *path)
  */
 char *get_file_path(char *command)
 {
-	char *path, *full_path;
+	char *path = NULL;
+	char *path_copy = NULL;
+	char *path_token = NULL;
+	char *file_path = NULL;
+	struct stat st;
 
-	if (!command)
+	if (!command || command[0] == '\0')
 		return (NULL);
 
-	command = trim_spaces(command);
-	if (!command || *command == '\0')
+	/* Check if command is already a path */
+	if (command[0] == '/' || command[0] == '.')
+	{
+		if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+			return (_strdup(command));
 		return (NULL);
-
-	if (command[0] == '.' || command[0] == '/')
-		return (check_current_dir(command));
+	}
 
 	path = getenv("PATH");
 	if (!path)
-		return (check_current_dir(command));
+		return (NULL);
 
-	full_path = search_path(command, path);
-	if (full_path)
-		return (full_path);
+	path_copy = _strdup(path);
+	if (!path_copy)
+		return (NULL);
 
-	return (check_current_dir(command));
+	path_token = strtok(path_copy, ":");
+	while (path_token)
+	{
+		file_path = concat_path(path_token, command);
+		if (file_path && stat(file_path, &st) == 0 && (st.st_mode & S_IXUSR))
+		{
+			free(path_copy);
+			return (file_path);
+		}
+		free(file_path);
+		path_token = strtok(NULL, ":");
+	}
+
+	free(path_copy);
+	/* If not found in PATH, try current directory */
+	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
+		return (_strdup(command));
+
+	return (NULL);
 }

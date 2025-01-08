@@ -30,15 +30,60 @@ int is_executable(char *path)
 	if (!path)
 		return (0);
 
-	if (stat(path, &st) == 0)
+	if (stat(path, &st) == -1)
+		return (0);
+
+	if (!S_ISREG(st.st_mode))
+		return (0);
+
+	if (!(st.st_mode & S_IXUSR))
 	{
-		if (S_ISREG(st.st_mode) && (st.st_mode & S_IXUSR))
-			return (1);
 		errno = EACCES;
 		return (0);
 	}
 
-	return (0);
+	return (1);
+}
+
+/**
+ * handle_relative_path - Handles relative path commands (./cmd)
+ * @cmd: Command to handle
+ *
+ * Return: Full path if found and executable, NULL otherwise
+ */
+char *handle_relative_path(char *cmd)
+{
+	char *pwd, *full_path;
+	size_t pwd_len;
+
+	/* If starts with / or ../, use as is */
+	if (cmd[0] == '/' || (cmd[0] == '.' && cmd[1] == '.' && cmd[2] == '/'))
+		return (is_executable(cmd) ? _strdup(cmd) : NULL);
+
+	/* If starts with ./, remove it */
+	if (cmd[0] == '.' && cmd[1] == '/')
+		cmd += 2;
+
+	/* Get current directory */
+	pwd = getcwd(NULL, 0);
+	if (!pwd)
+		return (NULL);
+
+	pwd_len = _strlen(pwd);
+	full_path = malloc(pwd_len + _strlen(cmd) + 2);
+	if (!full_path)
+	{
+		free(pwd);
+		return (NULL);
+	}
+
+	_strcpy(full_path, pwd);
+	if (pwd[pwd_len - 1] != '/')
+		_strcpy(full_path + pwd_len, "/");
+	_strcpy(full_path + _strlen(full_path), cmd);
+
+	free(pwd);
+	return (is_executable(full_path) ? full_path : NULL);
 }
 
 /**
@@ -55,18 +100,23 @@ char *handle_command_path(char **args, char *program_name)
 	if (!args || !args[0])
 		return (NULL);
 
+	/* Check if command contains a path */
 	if (_strchr(args[0], '/'))
 	{
-		if (is_executable(args[0]))
-			cmd_path = _strdup(args[0]);
+		cmd_path = handle_relative_path(args[0]);
+		if (!cmd_path)
+		{
+			print_error(program_name, args[0],
+				errno == EACCES ? "Permission denied" : "not found");
+		}
+		return (cmd_path);
 	}
-	else
-		cmd_path = get_file_path(args[0]);
 
+	/* Search in PATH */
+	cmd_path = get_file_path(args[0]);
 	if (!cmd_path)
 	{
-		print_error(program_name, args[0],
-				errno == EACCES ? "Permission denied" : "not found");
+		print_error(program_name, args[0], "not found");
 		return (NULL);
 	}
 

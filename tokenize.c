@@ -34,11 +34,32 @@ void free_tokens(char **args, int count)
 	for (i = 0; i < count; i++)
 	{
 		if (args[i])
-		{
 			free(args[i]);
-			args[i] = NULL;
-		}
 	}
+}
+
+/**
+ * trim_input - Removes leading and trailing whitespace
+ * @str: String to trim
+ *
+ * Return: Pointer to first non-whitespace char
+ */
+char *trim_input(char *str)
+{
+	char *end;
+
+	while (*str && (*str == ' ' || *str == '\t'))
+		str++;
+
+	if (*str == 0)
+		return (str);
+
+	end = str + _strlen(str) - 1;
+	while (end > str && (*end == ' ' || *end == '\t' || *end == '\n'))
+		end--;
+
+	end[1] = '\0';
+	return (str);
 }
 
 /**
@@ -51,13 +72,17 @@ void free_tokens(char **args, int count)
 int tokenize_input(char *input, char *args[])
 {
 	int count = 0;
-	char *token, *input_copy;
-	const char *delimiters = " \t\n\r";
+	char *token, *input_copy, *trimmed;
+	const char *delimiters = " \t\n";
 
 	if (!input || !args)
 		return (0);
 
-	input_copy = _strdup(input);
+	trimmed = trim_input(input);
+	if (!*trimmed)
+		return (0);
+
+	input_copy = _strdup(trimmed);
 	if (!input_copy)
 		return (0);
 
