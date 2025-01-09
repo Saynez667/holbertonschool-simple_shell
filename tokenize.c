@@ -12,43 +12,50 @@
  */
 int tokenize_input(char *input, char *args[])
 {
-	int count = 0;
-	char *token, *input_copy, *trimmed_token;
-	const char *delimiters = " \t\n\r";
+    int count = 0;
+    char *token, *input_copy, *trimmed_token;
+    const char *delimiters = " \t\n\r";
 
-	if (!input || !args)
-		return (0);
+    /* Check for NULL or empty input */
+    if (!input || !args)
+        return (0);
 
-	/* Create a copy of input for tokenization */
-	input_copy = _strdup(input);
-	if (!input_copy)
-		return (0);
+    /* Skip if input is empty or only whitespace */
+    trimmed_token = trim_token(input);
+    if (!trimmed_token || !*trimmed_token)
+        return (0);
 
-	/* Get first token */
-	token = strtok(input_copy, delimiters);
-	while (token && count < 9)
-	{
-		/* Trim and validate token */
-		trimmed_token = trim_token(token);
-		if (trimmed_token && *trimmed_token)
-		{
-			/* Duplicate trimmed token */
-			args[count] = _strdup(trimmed_token);
-			if (!args[count])
-			{
-				free_tokens(args, count);
-				free(input_copy);
-				return (0);
-			}
-			count++;
-		}
-		token = strtok(NULL, delimiters);
-	}
+    /* Create a copy of input for tokenization */
+    input_copy = _strdup(input);
+    if (!input_copy)
+        return (0);
 
-	/* Ensure array is NULL-terminated */
-	args[count] = NULL;
-	free(input_copy);
-	return (count);
+    /* Initialize args array to NULL */
+    for (int i = 0; i < 10; i++)
+        args[i] = NULL;
+
+    /* Get first token */
+    token = strtok(input_copy, delimiters);
+    while (token && count < 9)
+    {
+        trimmed_token = trim_token(token);
+        if (trimmed_token && *trimmed_token)
+        {
+            args[count] = _strdup(trimmed_token);
+            if (!args[count])
+            {
+                free_tokens(args, count);
+                free(input_copy);
+                return (0);
+            }
+            count++;
+        }
+        token = strtok(NULL, delimiters);
+    }
+
+    args[count] = NULL;
+    free(input_copy);
+    return (count);
 }
 
 /**
