@@ -20,21 +20,13 @@ int handle_builtin_commands(char **args, int num_args, char *input, char **env)
 	}
 	else if (strcmp(args[0], "cd") == 0)
 	{
-		handle_cd(args, num_args, env);
+		handle_cd(args, num_args);
 		return (1);
 	}
 	else if (strcmp(args[0], "env") == 0)
 	{
 		print_env(env);
 		return (1);
-	}
-	else if (strcmp(args[0], "setenv") == 0)
-	{
-		return (handle_setenv(args, args[0]));
-	}
-	else if (strcmp(args[0], "unsetenv") == 0)
-	{
-		return (handle_unsetenv(args, args[0]));
 	}
 
 	return (0);

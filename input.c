@@ -11,8 +11,8 @@ char *read_input(void)
 	size_t buf_size = 0;
 	ssize_t nread;
 
-	/* Read input using custom_getline */
-	nread = custom_getline(&input_buffer, &buf_size, STDIN_FILENO);
+	/* Read input using getline */
+	nread = getline(&input_buffer, &buf_size, stdin);
 
 	if (nread == -1)
 	{

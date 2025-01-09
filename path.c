@@ -111,11 +111,10 @@ char *search_path(char *command, char *path)
 /**
  * get_file_path - Get's the full path of the file
  * @command: Command to find
- * @env: Environment variables
  *
  * Return: Full path of command or NULL if not found
  */
-char *get_file_path(char *command, char **env)
+char *get_file_path(char *command)
 {
 	char *path, *full_path;
 
@@ -129,7 +128,7 @@ char *get_file_path(char *command, char **env)
 	if (command[0] == '.' || command[0] == '/')
 		return (check_current_dir(command));
 
-	path = _getenv("PATH", env);
+	path = getenv("PATH");
 	if (!path)
 		return (check_current_dir(command));
 

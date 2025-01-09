@@ -14,9 +14,6 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 	int status = 0;
 	int interactive;
 
-	/* Set up signal handlers */
-	setup_signal_handlers();
-
 	interactive = isatty(STDIN_FILENO);
 
 	while (1)
@@ -32,7 +29,8 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 			return (status);
 		}
 
-		if (input_buffer[0] == '\0' || input_buffer[0] == '\n')
+		if (input_buffer[0] == '\0' ||
+			input_buffer[0] == '\n')
 		{
 			free(input_buffer);
 			continue;
