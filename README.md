@@ -108,7 +108,7 @@ $ ./hsh
 ## Mandatory Tasks
 ```
 ## Documentation
-For developers interested in understanding or modifying the code, we provide a comprehensive [Technical Documentation](DOCUMENTATION_EN.md) that includes:
+For developers interested in understanding or modifying the code, we provide a comprehensive (In English) [Technical Documentation](DOCUMENTATION_EN.md) (Or in French) [Technical Documentation](DOCUMENTATION_FR.md) that includes:
 - Detailed function descriptions
 - Program flow explanation
 - Error handling strategies
