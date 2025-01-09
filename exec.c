@@ -46,48 +46,15 @@ int get_token_count(char **args)
  */
 char *handle_command_path(char **args, char *program_name, char **env)
 {
-	char *cmd_path = NULL;
-	struct stat st;
+	char *cmd_path;
 
-	if (!args || !args[0])
+	if (!args[0])
 		return (NULL);
 
-	/* If command is empty or too long */
-	if (args[0][0] == '\0')
-	{
-		print_error(program_name, args[0], "not found");
-		return (NULL);
-	}
-
-	/* If command contains a slash, use it directly */
-	if (_strchr(args[0], '/') != NULL)
-	{
-		if (stat(args[0], &st) == -1)
-		{
-			print_error(program_name, args[0], "not found");
-			return (NULL);
-		}
-		if (!(st.st_mode & S_IXUSR))
-		{
-			print_error(program_name, args[0], "Permission denied");
-			return (NULL);
-		}
-		return (_strdup(args[0]));
-	}
-
-	/* Search in PATH */
 	cmd_path = get_file_path(args[0], env);
 	if (!cmd_path)
 	{
 		print_error(program_name, args[0], "not found");
-		return (NULL);
-	}
-
-	/* Verify if we have permission to execute */
-	if (stat(cmd_path, &st) == 0 && !(st.st_mode & S_IXUSR))
-	{
-		print_error(program_name, args[0], "Permission denied");
-		free(cmd_path);
 		return (NULL);
 	}
 
@@ -122,7 +89,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 	}
 
 	cmd_path = handle_command_path(args, program_name, env);
-	if (!cmd_path)
+	if (cmd_path == NULL)
 	{
 		free_tokens(args, num_args);
 		return (127);

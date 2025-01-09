@@ -61,25 +61,6 @@ char *trim_spaces(char *command)
 }
 
 /**
- * check_current_dir - Check if command exists in current directory
- * @command: Command to check
- *
- * Return: Duplicated command string if found, NULL otherwise
- */
-char *check_current_dir(char *command)
-{
-	struct stat st;
-
-	if (!command)
-		return (NULL);
-
-	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
-		return (_strdup(command));
-
-	return (NULL);
-}
-
-/**
  * search_path - Search command in PATH directories
  * @command: Command to find
  * @path: PATH environment variable
@@ -88,13 +69,9 @@ char *check_current_dir(char *command)
  */
 char *search_path(char *command, char *path)
 {
-	char *path_copy, *dir, *full_path = NULL;
+	char *path_copy, *dir, *full_path;
 	struct stat st;
 
-	if (!command || !path)
-		return (NULL);
-
-	/* Make a copy of path since strtok modifies the string */
 	path_copy = _strdup(path);
 	if (!path_copy)
 		return (NULL);
@@ -102,23 +79,21 @@ char *search_path(char *command, char *path)
 	dir = strtok(path_copy, ":");
 	while (dir)
 	{
+		if (*dir == '\0')
+			dir = ".";
+
 		full_path = concat_path(dir, command);
-		if (full_path)
+		if (full_path && access(full_path, X_OK) == 0)
 		{
 			if (stat(full_path, &st) == 0)
 			{
-				if (st.st_mode & S_IXUSR)
-				{
-					free(path_copy);
-					return (full_path);
-				}
+				free(path_copy);
+				return (full_path);
 			}
-			free(full_path);
-			full_path = NULL;
 		}
+		free(full_path);
 		dir = strtok(NULL, ":");
 	}
-
 	free(path_copy);
 	return (NULL);
 }
@@ -133,21 +108,28 @@ char *search_path(char *command, char *path)
 char *get_file_path(char *command, char **env)
 {
 	char *path, *full_path;
+	struct stat st;
 
-	if (!command || !env)
+	if (!command)
 		return (NULL);
 
 	command = trim_spaces(command);
 	if (!command || *command == '\0')
 		return (NULL);
 
-	/* Check for commands with slash */
+	/* For commands with path */
 	if (_strchr(command, '/') != NULL)
-		return (check_current_dir(command));
+	{
+		if (access(command, F_OK) == 0)
+		{
+			if (stat(command, &st) == 0)
+				return (_strdup(command));
+		}
+		return (NULL);
+	}
 
-	/* Get PATH and search for command */
 	path = _getenv("PATH", env);
-	if (!path || !*path)
+	if (!path)
 		return (NULL);
 
 	full_path = search_path(command, path);
