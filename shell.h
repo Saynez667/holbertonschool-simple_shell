@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stddef.h>
+#include <limits.h>
 
 /* Execute Functions */
 int execute_command(char *input, char *argv[],
