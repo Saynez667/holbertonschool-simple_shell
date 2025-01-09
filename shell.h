@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <signal.h>
 
 /* Execute Functions */
 int execute_command(char *input, char *argv[],
@@ -46,12 +47,20 @@ void print_error(char *program, char *cmd, char *msg);
 int handle_builtin_commands(char **args,
 		int num_args, char *input,
 		char **env);
-void print_env(char **env);
 void handle_cd(char **args, int num_args);
 void handle_exit(char *input, int exit_status);
 int shell_exit(char **args, char *input);
 
 /* Custom getline function */
 ssize_t custom_getline(char **lineptr, size_t *n, int fd);
+
+/* Signal handling functions */
+void handle_sigint(int sig);
+void setup_signal_handlers(void);
+
+/* Environment variable commands */
+int handle_setenv(char **args, char *program_name);
+int handle_unsetenv(char **args, char *program_name);
+void print_env(char **env);
 
 #endif /* SHELL_H */
