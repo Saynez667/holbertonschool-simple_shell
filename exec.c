@@ -1,47 +1,10 @@
 #include "shell.h"
 
 /**
- * setup_ls_colors - Sets up environment for colored ls output
- * @args: Command arguments
- * @env: Environment variables array
- * @num_args: Number of arguments
- *
- * Return: void
- */
-void setup_ls_colors(char **args, char **env, int num_args)
-{
-	char *ls_colors, *color_string;
-	int i;
-
-	if (!args || !args[0] || strcmp(args[0], "ls") != 0)
-		return;
-
-	for (i = 0; i < num_args; i++)
-		if (strstr(args[i], "--color") != NULL)
-			return;
-
-	if (num_args < 9)
-	{
-		args[num_args] = "--color=auto";
-		args[num_args + 1] = NULL;
-	}
-
-	ls_colors = _getenv("LS_COLORS", env);
-	if (!ls_colors || !*ls_colors)
-	{
-		color_string = "di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:";
-		color_string = "cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43";
-		setenv("LS_COLORS", color_string, 1);
-	}
-}
-
-/**
  * execute_child - Handles the child process execution
  * @cmd_path: Path to the command to execute
  * @args: Array of arguments
  * @env: Environment variables
- *
- * Return: void
  */
 void execute_child(char *cmd_path, char **args, char **env)
 {
@@ -52,31 +15,6 @@ void execute_child(char *cmd_path, char **args, char **env)
 		free_tokens(args, get_token_count(args));
 		exit(127);
 	}
-}
-
-/**
- * handle_command_path - Handles command path resolution using stat
- * @args: Array of arguments
- * @program_name: Name of the shell program
- * @env: Environment variables array
- *
- * Return: Command path or NULL
- */
-char *handle_command_path(char **args, char *program_name, char **env)
-{
-	char *cmd_path;
-
-	if (!args[0])
-		return (NULL);
-
-	cmd_path = get_file_path(args[0], env);
-	if (!cmd_path)
-	{
-		print_error(program_name, args[0], "not found");
-		return (NULL);
-	}
-
-	return (cmd_path);
 }
 
 /**
@@ -96,6 +34,64 @@ int get_token_count(char **args)
 		count++;
 
 	return (count);
+}
+
+/**
+ * handle_command_path - Handles command path resolution using stat
+ * @args: Array of arguments
+ * @program_name: Name of the shell program
+ * @env: Environment variables array
+ *
+ * Return: Command path or NULL
+ */
+char *handle_command_path(char **args, char *program_name, char **env)
+{
+	char *cmd_path = NULL;
+	struct stat st;
+
+	if (!args || !args[0])
+		return (NULL);
+
+	/* If command is empty or too long */
+	if (args[0][0] == '\0')
+	{
+		print_error(program_name, args[0], "not found");
+		return (NULL);
+	}
+
+	/* If command contains a slash, use it directly */
+	if (_strchr(args[0], '/') != NULL)
+	{
+		if (stat(args[0], &st) == -1)
+		{
+			print_error(program_name, args[0], "not found");
+			return (NULL);
+		}
+		if (!(st.st_mode & S_IXUSR))
+		{
+			print_error(program_name, args[0], "Permission denied");
+			return (NULL);
+		}
+		return (_strdup(args[0]));
+	}
+
+	/* Search in PATH */
+	cmd_path = get_file_path(args[0], env);
+	if (!cmd_path)
+	{
+		print_error(program_name, args[0], "not found");
+		return (NULL);
+	}
+
+	/* Verify if we have permission to execute */
+	if (stat(cmd_path, &st) == 0 && !(st.st_mode & S_IXUSR))
+	{
+		print_error(program_name, args[0], "Permission denied");
+		free(cmd_path);
+		return (NULL);
+	}
+
+	return (cmd_path);
 }
 
 /**
@@ -125,10 +121,8 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 		return (0);
 	}
 
-	setup_ls_colors(args, env, num_args);
-
 	cmd_path = handle_command_path(args, program_name, env);
-	if (cmd_path == NULL)
+	if (!cmd_path)
 	{
 		free_tokens(args, num_args);
 		return (127);
