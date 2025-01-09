@@ -29,10 +29,8 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 			return (status);
 		}
 
-		/* Skip empty lines and comments */
 		if (input_buffer[0] == '\0' ||
-			input_buffer[0] == '\n' ||
-			input_buffer[0] == '#')
+			input_buffer[0] == '\n')
 		{
 			free(input_buffer);
 			continue;
@@ -41,8 +39,5 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 		status = execute_command(input_buffer, argv, env, argv[0]);
 		free(input_buffer);
 		input_buffer = NULL;
-
-		if (!interactive)
-			fflush(stdout);
 	}
 }

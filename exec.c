@@ -18,76 +18,26 @@ void execute_child(char *cmd_path, char **args, char **env)
 }
 
 /**
- * is_executable - Checks if file exists and is executable
- * @path: Path to check
+ * get_token_count - Count number of tokens
+ * @args: Array of tokens
  *
- * Return: 1 if executable, 0 otherwise
+ * Return: Number of tokens
  */
-int is_executable(char *path)
+int get_token_count(char **args)
 {
-	struct stat st;
+	int count = 0;
 
-	if (!path)
+	if (!args)
 		return (0);
 
-	if (stat(path, &st) == -1)
-		return (0);
+	while (args[count])
+		count++;
 
-	if (!S_ISREG(st.st_mode))
-		return (0);
-
-	if (!(st.st_mode & S_IXUSR))
-	{
-		errno = EACCES;
-		return (0);
-	}
-
-	return (1);
+	return (count);
 }
 
 /**
- * handle_relative_path - Handles relative path commands (./cmd)
- * @cmd: Command to handle
- *
- * Return: Full path if found and executable, NULL otherwise
- */
-char *handle_relative_path(char *cmd)
-{
-	char *pwd, *full_path;
-	size_t pwd_len;
-
-	/* If starts with / or ../, use as is */
-	if (cmd[0] == '/' || (cmd[0] == '.' && cmd[1] == '.' && cmd[2] == '/'))
-		return (is_executable(cmd) ? _strdup(cmd) : NULL);
-
-	/* If starts with ./, remove it */
-	if (cmd[0] == '.' && cmd[1] == '/')
-		cmd += 2;
-
-	/* Get current directory */
-	pwd = getcwd(NULL, 0);
-	if (!pwd)
-		return (NULL);
-
-	pwd_len = _strlen(pwd);
-	full_path = malloc(pwd_len + _strlen(cmd) + 2);
-	if (!full_path)
-	{
-		free(pwd);
-		return (NULL);
-	}
-
-	_strcpy(full_path, pwd);
-	if (pwd[pwd_len - 1] != '/')
-		_strcpy(full_path + pwd_len, "/");
-	_strcpy(full_path + _strlen(full_path), cmd);
-
-	free(pwd);
-	return (is_executable(full_path) ? full_path : NULL);
-}
-
-/**
- * handle_command_path - Handles command path resolution
+ * handle_command_path - Handles command path resolution using stat
  * @args: Array of arguments
  * @program_name: Name of the shell program
  *
@@ -96,28 +46,30 @@ char *handle_relative_path(char *cmd)
 char *handle_command_path(char **args, char *program_name)
 {
 	char *cmd_path = NULL;
+	struct stat st;
 
-	if (!args || !args[0])
+	if (!args[0])
 		return (NULL);
 
-	/* Check if command contains a path */
-	if (_strchr(args[0], '/'))
+	if (_strchr(args[0], '/') != NULL)
 	{
-		cmd_path = handle_relative_path(args[0]);
-		if (!cmd_path)
+		if (stat(args[0], &st) == -1)
 		{
-			print_error(program_name, args[0],
-				errno == EACCES ? "Permission denied" : "not found");
+			print_error(program_name, args[0], "not found");
+			return (NULL);
 		}
-		return (cmd_path);
+		if (!(st.st_mode & S_IXUSR))
+		{
+			print_error(program_name, args[0], "Permission denied");
+			return (NULL);
+		}
+		cmd_path = _strdup(args[0]);
 	}
-
-	/* Search in PATH */
-	cmd_path = get_file_path(args[0]);
-	if (!cmd_path)
+	else
 	{
-		print_error(program_name, args[0], "not found");
-		return (NULL);
+		cmd_path = get_file_path(args[0]);
+		if (cmd_path == NULL)
+			print_error(program_name, args[0], "not found");
 	}
 
 	return (cmd_path);
@@ -151,7 +103,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 	}
 
 	cmd_path = handle_command_path(args, program_name);
-	if (!cmd_path)
+	if (cmd_path == NULL)
 	{
 		free_tokens(args, num_args);
 		return (127);

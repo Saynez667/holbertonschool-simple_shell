@@ -17,19 +17,20 @@ int execute_command(char *input, char *argv[],
 void execute_child(char *cmd_path, char **args, char **env);
 char *handle_command_path(char **args, char *program_name);
 int get_token_count(char **args);
-int is_executable(char *path);
 
 /* Input and Tokenization Functions */
 char *read_input(void);
 void print_prompt(void);
 int tokenize_input(char *input, char *args[]);
 void free_tokens(char **args, int count);
+char *trim_token(char *token);
 
 /* Path Functions */
 char *get_file_path(char *command);
+char *search_path(char *command, char *path);
+char *check_current_dir(char *command);
+char *trim_spaces(char *command);
 char *concat_path(char *dir, char *command);
-char *try_path(char *dir, char *command);
-char *try_current_dir(char *command);
 
 /* String utility functions */
 int _strlen(char *str);

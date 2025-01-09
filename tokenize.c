@@ -1,25 +1,6 @@
 #include "shell.h"
 
 /**
- * get_token_count - Count number of tokens in array
- * @args: Array of tokens
- *
- * Return: Number of tokens
- */
-int get_token_count(char **args)
-{
-	int count = 0;
-
-	if (!args)
-		return (0);
-
-	while (args[count])
-		count++;
-
-	return (count);
-}
-
-/**
  * free_tokens - Frees allocated tokens
  * @args: Array of token strings
  * @count: Number of tokens to free
@@ -28,38 +9,45 @@ void free_tokens(char **args, int count)
 {
 	int i;
 
-	if (!args)
-		return;
-
 	for (i = 0; i < count; i++)
 	{
-		if (args[i])
-			free(args[i]);
+		free(args[i]);
+		args[i] = NULL;
 	}
 }
 
 /**
- * trim_input - Removes leading and trailing whitespace
- * @str: String to trim
+ * trim_token - Removes leading and trailing spaces from token
+ * @token: Token to trim
  *
- * Return: Pointer to first non-whitespace char
+ * Return: Trimmed token
  */
-char *trim_input(char *str)
+char *trim_token(char *token)
 {
 	char *end;
 
-	while (*str && (*str == ' ' || *str == '\t'))
-		str++;
+	if (!token)
+		return (NULL);
 
-	if (*str == 0)
-		return (str);
+	/* Skip leading spaces */
+	while (*token == ' ' || *token == '\t')
+		token++;
 
-	end = str + _strlen(str) - 1;
-	while (end > str && (*end == ' ' || *end == '\t' || *end == '\n'))
+	/* If string is all spaces */
+	if (*token == '\0')
+		return (token);
+
+	/* Find end of string */
+	end = token + _strlen(token) - 1;
+
+	/* Trim trailing spaces */
+	while (end > token && (*end == ' ' || *end == '\t'))
 		end--;
 
-	end[1] = '\0';
-	return (str);
+	/* Null terminate the trimmed string */
+	*(end + 1) = '\0';
+
+	return (token);
 }
 
 /**
@@ -72,31 +60,31 @@ char *trim_input(char *str)
 int tokenize_input(char *input, char *args[])
 {
 	int count = 0;
-	char *token, *input_copy, *trimmed;
-	const char *delimiters = " \t\n";
+	char *token, *input_copy, *trimmed_token;
+	const char *delimiters = " \t\n\r";
 
 	if (!input || !args)
 		return (0);
 
-	trimmed = trim_input(input);
-	if (!*trimmed)
-		return (0);
-
-	input_copy = _strdup(trimmed);
+	input_copy = _strdup(input);
 	if (!input_copy)
 		return (0);
 
 	token = strtok(input_copy, delimiters);
 	while (token && count < 9)
 	{
-		args[count] = _strdup(token);
-		if (!args[count])
+		trimmed_token = trim_token(token);
+		if (trimmed_token && *trimmed_token)
 		{
-			free_tokens(args, count);
-			free(input_copy);
-			return (0);
+			args[count] = _strdup(trimmed_token);
+			if (!args[count])
+			{
+				free_tokens(args, count);
+				free(input_copy);
+				return (0);
+			}
+			count++;
 		}
-		count++;
 		token = strtok(NULL, delimiters);
 	}
 

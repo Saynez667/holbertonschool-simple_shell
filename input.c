@@ -17,6 +17,8 @@ char *read_input(void)
 	if (nread == -1)
 	{
 		free(input_buffer);
+		if (isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, "\n", 1);
 		return (NULL);
 	}
 
