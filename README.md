@@ -6,6 +6,7 @@
 - [Requirements](#Requirements)
   [Man Page](#Man-Page)
 - [Flowchart](#Flowchart)
+- [Documentation](#Documentation)
 - [Usage](#Usage)
 - [Installation & Compilation](#Installation-&-Compilation)
 - [Mandatory Tasks](#Mandatory-Tasks)
@@ -106,6 +107,13 @@ $ ./hsh
 ## Installation & Compilation
 ## Mandatory Tasks
 ```
+## Documentation
+For developers interested in understanding or modifying the code, we provide a comprehensive [Technical Documentation](DOCUMENTATION_EN.md) that includes:
+- Detailed function descriptions
+- Program flow explanation
+- Error handling strategies
+- Resource management
+- Best practices
 
 ### Task 0 :
 - Write a `README`
