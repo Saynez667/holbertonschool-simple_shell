@@ -33,10 +33,11 @@ int save_current_dir(char *buf, size_t size)
  * handle_cd - Handles the cd functionality
  * @args: Array of commands
  * @num_args: Argument count
+ * @env: Environment variables array
  *
  * Return: void
  */
-void handle_cd(char **args, int num_args)
+void handle_cd(char **args, int num_args, char **env)
 {
 	const char *home_dir, *prev_dir;
 	char current_dir[4096];
@@ -45,8 +46,8 @@ void handle_cd(char **args, int num_args)
 	if (!args || !save_current_dir(current_dir, sizeof(current_dir)))
 		return;
 
-	home_dir = getenv("HOME");
-	prev_dir = getenv("OLDPWD");
+	home_dir = _getenv("HOME", env);
+	prev_dir = _getenv("OLDPWD", env);
 
 	if (num_args == 1 || (num_args == 2 && strcmp(args[1], "~") == 0))
 	{

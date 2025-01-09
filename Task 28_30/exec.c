@@ -40,10 +40,11 @@ int get_token_count(char **args)
  * handle_command_path - Handles command path resolution using stat
  * @args: Array of arguments
  * @program_name: Name of the shell program
+ * @env: Environment variables array
  *
  * Return: Command path or NULL
  */
-char *handle_command_path(char **args, char *program_name)
+char *handle_command_path(char **args, char *program_name, char **env)
 {
 	char *cmd_path = NULL;
 	struct stat st;
@@ -67,7 +68,7 @@ char *handle_command_path(char **args, char *program_name)
 	}
 	else
 	{
-		cmd_path = get_file_path(args[0]);
+		cmd_path = get_file_path(args[0], env);
 		if (cmd_path == NULL)
 			print_error(program_name, args[0], "not found");
 	}
@@ -102,7 +103,7 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 		return (0);
 	}
 
-	cmd_path = handle_command_path(args, program_name);
+	cmd_path = handle_command_path(args, program_name, env);
 	if (cmd_path == NULL)
 	{
 		free_tokens(args, num_args);

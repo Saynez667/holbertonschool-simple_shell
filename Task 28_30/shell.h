@@ -15,7 +15,7 @@
 int execute_command(char *input, char *argv[],
 		char **env, char *program_name);
 void execute_child(char *cmd_path, char **args, char **env);
-char *handle_command_path(char **args, char *program_name);
+char *handle_command_path(char **args, char *program_name, char **env);
 int get_token_count(char **args);
 
 /* Input and Tokenization Functions */
@@ -26,7 +26,7 @@ void free_tokens(char **args, int count);
 char *trim_token(char *token);
 
 /* Path Functions */
-char *get_file_path(char *command);
+char *get_file_path(char *command, char **env);
 char *search_path(char *command, char *path);
 char *check_current_dir(char *command);
 char *trim_spaces(char *command);
@@ -38,6 +38,7 @@ char *_strdup(char *str);
 char *_strcpy(char *dest, char *src);
 char *_strchr(const char *s, int c);
 char *_memset(char *s, char b, unsigned int n);
+char *_getenv(const char *name, char **env);
 
 /* Error Handling Functions */
 void print_error(char *program, char *cmd, char *msg);
@@ -47,7 +48,7 @@ int handle_builtin_commands(char **args,
 		int num_args, char *input,
 		char **env);
 void print_env(char **env);
-void handle_cd(char **args, int num_args);
+void handle_cd(char **args, int num_args, char **env);
 void handle_exit(char *input, int exit_status);
 int shell_exit(char **args, char *input);
 
