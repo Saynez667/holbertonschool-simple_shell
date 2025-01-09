@@ -51,4 +51,7 @@ void handle_cd(char **args, int num_args);
 void handle_exit(char *input, int exit_status);
 int shell_exit(char **args, char *input);
 
+/* Custom getline function */
+ssize_t custom_getline(char **lineptr, size_t *n, int fd);
+
 #endif /* SHELL_H */
