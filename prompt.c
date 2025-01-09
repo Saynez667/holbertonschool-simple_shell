@@ -8,7 +8,7 @@ void print_prompt(void)
 {
 	if (isatty(STDIN_FILENO))
 	{
-		write(STDOUT_FILENO, "ValakShell$ ", 11);
+		write(STDOUT_FILENO, "Shell$ ", 7);
 		fflush(stdout);
 	}
 }

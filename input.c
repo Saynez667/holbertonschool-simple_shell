@@ -5,7 +5,7 @@
  * Description: Reads a line of input, handles empty lines and whitespace.
  * Performs proper memory management and error checking.
  *
- * Return: Pointer to input string, or NULL if empty/error
+ * Return: Pointer to input string, or NULL if EOF
  */
 char *read_input(void)
 {
@@ -17,6 +17,7 @@ char *read_input(void)
 	/* Read input using getline */
 	nread = getline(&input_buffer, &buf_size, stdin);
 
+	/* Handle EOF */
 	if (nread == -1)
 	{
 		free(input_buffer);
@@ -39,11 +40,11 @@ char *read_input(void)
 		}
 	}
 
-	/* Free and return NULL if input is empty or only whitespace */
+	/* Return empty string for empty lines or whitespace */
 	if (only_spaces)
 	{
-		free(input_buffer);
-		return (NULL);
+		input_buffer[0] = '\0';
+		return (input_buffer);
 	}
 
 	return (input_buffer);

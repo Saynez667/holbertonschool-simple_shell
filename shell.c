@@ -26,18 +26,24 @@ int main(int argc __attribute__((unused)), char *argv[], char **env)
 		{
 			if (interactive)
 				write(STDOUT_FILENO, "\n", 1);
-			return (status);
+			break;
 		}
 
-		if (input_buffer[0] == '\0' ||
-			input_buffer[0] == '\n')
+		/* Skip empty lines and continue */
+		if (input_buffer[0] == '\0' || input_buffer[0] == '\n')
 		{
 			free(input_buffer);
+			input_buffer = NULL;
 			continue;
 		}
 
 		status = execute_command(input_buffer, argv, env, argv[0]);
 		free(input_buffer);
 		input_buffer = NULL;
+
+		if (status == -1)  /* Handle exit command */
+			break;
 	}
+
+	return (status);
 }
