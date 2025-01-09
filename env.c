@@ -1,6 +1,29 @@
 #include "shell.h"
 
 /**
+ * _getenv - Gets an environment variable
+ * @name: Name of the environment variable
+ * @env: Environment variables array
+ * Return: Pointer to the value or NULL if not found
+ */
+char *_getenv(const char *name, char **env)
+{
+	int i;
+	size_t len;
+
+	if (!name || !env)
+		return (NULL);
+
+	len = _strlen((char *)name);
+	for (i = 0; env[i]; i++)
+	{
+		if (strncmp(env[i], name, len) == 0 && env[i][len] == '=')
+			return (env[i] + len + 1);
+	}
+	return (NULL);
+}
+
+/**
  * print_env - Prints the environment variables
  * @env: Array of environment variables
  *

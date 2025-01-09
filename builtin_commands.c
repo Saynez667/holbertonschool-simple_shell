@@ -20,7 +20,7 @@ int handle_builtin_commands(char **args, int num_args, char *input, char **env)
 	}
 	else if (strcmp(args[0], "cd") == 0)
 	{
-		handle_cd(args, num_args);
+		handle_cd(args, num_args, env);
 		return (1);
 	}
 	else if (strcmp(args[0], "env") == 0)
