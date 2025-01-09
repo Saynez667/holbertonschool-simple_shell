@@ -37,61 +37,52 @@ int get_token_count(char **args)
 }
 
 /**
- * handle_command_path - Handles command path resolution using stat
- * @args: Array of arguments
- * @program_name: Name of the shell program
- * @env: Environment variables array
+ * prepare_command - Prepares command for execution
+ * @input: Input string
+ * @args: Array to store arguments
  *
- * Return: Command path or NULL
+ * Return: Number of arguments, or -1 on empty input
  */
-char *handle_command_path(char **args, char *program_name, char **env)
+int prepare_command(char *input, char **args)
 {
-	char *cmd_path = NULL;
-	struct stat st;
+	char *trimmed_input = trim_spaces(input);
+	int num_args;
 
-	if (!args || !args[0])
-		return (NULL);
+	if (!trimmed_input || !*trimmed_input)
+		return (-1);
 
-	/* If command is empty or too long */
-	if (args[0][0] == '\0')
+	num_args = tokenize_input(trimmed_input, args);
+	if (num_args == 0)
+		return (-1);
+
+	return (num_args);
+}
+
+/**
+ * handle_fork - Handles the fork and execution process
+ * @cmd_path: Command path
+ * @args: Command arguments
+ * @env: Environment variables
+ *
+ * Return: Exit status of child process
+ */
+int handle_fork(char *cmd_path, char **args, char **env)
+{
+	pid_t child_pid;
+	int status = 0;
+
+	child_pid = fork();
+	if (child_pid == -1)
 	{
-		print_error(program_name, args[0], "not found");
-		return (NULL);
+		perror("Error");
+		return (1);
 	}
 
-	/* If command contains a slash, use it directly */
-	if (_strchr(args[0], '/') != NULL)
-	{
-		if (stat(args[0], &st) == -1)
-		{
-			print_error(program_name, args[0], "not found");
-			return (NULL);
-		}
-		if (!(st.st_mode & S_IXUSR))
-		{
-			print_error(program_name, args[0], "Permission denied");
-			return (NULL);
-		}
-		return (_strdup(args[0]));
-	}
+	if (child_pid == 0)
+		execute_child(cmd_path, args, env);
 
-	/* Search in PATH */
-	cmd_path = get_file_path(args[0], env);
-	if (!cmd_path)
-	{
-		print_error(program_name, args[0], "not found");
-		return (NULL);
-	}
-
-	/* Verify if we have permission to execute */
-	if (stat(cmd_path, &st) == 0 && !(st.st_mode & S_IXUSR))
-	{
-		print_error(program_name, args[0], "Permission denied");
-		free(cmd_path);
-		return (NULL);
-	}
-
-	return (cmd_path);
+	waitpid(child_pid, &status, 0);
+	return (WEXITSTATUS(status));
 }
 
 /**
@@ -108,11 +99,10 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 {
 	char *args[10];
 	char *cmd_path = NULL;
-	int status = 0, num_args;
-	pid_t child_pid;
+	int status, num_args;
 
-	num_args = tokenize_input(input, args);
-	if (num_args == 0)
+	num_args = prepare_command(input, args);
+	if (num_args == -1)
 		return (0);
 
 	if (handle_builtin_commands(args, num_args, input, env) == 1)
@@ -128,20 +118,8 @@ int execute_command(char *input, char *argv[] __attribute__((unused)),
 		return (127);
 	}
 
-	child_pid = fork();
-	if (child_pid == -1)
-	{
-		perror("Error");
-		free(cmd_path);
-		free_tokens(args, num_args);
-		return (1);
-	}
-
-	if (child_pid == 0)
-		execute_child(cmd_path, args, env);
-
-	waitpid(child_pid, &status, 0);
+	status = handle_fork(cmd_path, args, env);
 	free(cmd_path);
 	free_tokens(args, num_args);
-	return (WEXITSTATUS(status));
+	return (status);
 }
