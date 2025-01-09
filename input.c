@@ -11,8 +11,23 @@ char *read_input(void)
 	size_t buf_size = 0;
 	ssize_t nread;
 
+	/* Read input using getline */
 	nread = getline(&input_buffer, &buf_size, stdin);
+
 	if (nread == -1)
+	{
+		free(input_buffer);
+		if (isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, "\n", 1);
+		return (NULL);
+	}
+
+	/* Remove trailing newline if present */
+	if (nread > 0 && input_buffer[nread - 1] == '\n')
+		input_buffer[nread - 1] = '\0';
+
+	/* Check for empty input */
+	if (input_buffer[0] == '\0')
 	{
 		free(input_buffer);
 		return (NULL);

@@ -52,9 +52,4 @@ void handle_cd(char **args, int num_args, char **env);
 void handle_exit(char *input, int exit_status);
 int shell_exit(char **args, char *input);
 
-/* Command Processing Functions */
-void process_commands(char *input_buffer,
-char *argv[], char **env, int *status);
-char *get_next_command(char **input_ptr);
-
 #endif /* SHELL_H */
