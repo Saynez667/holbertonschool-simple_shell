@@ -215,170 +215,57 @@ julien@ubuntu:~/shell$
 ## File description
 - **shell.h**
 ```
-This file is a header for a C shell program. It contains:
-1-Standard library inclusions necessary for the shell to work.
-2-Function declarations for:
-Executing commands (eg: execute_command, read_input)
-String manipulation (eg: _strlen, _strdup)
-Management of built-in commands (eg: handle_builtin_commands, handle_cd)**
-3-Its role is to define the shell interface, allowing other project files to access declared functions by simply including it
+Header file containing all function prototypes and necessary includes for the shell program.
 ```
 - **builtin_commands.c**
 ```
-This file implements the shell's built-in command handling. The main handle_builtin_commands function:
-1-Takes as input the command arguments, their number, the complete command, and environment variables.
-2-Checks if the command is one of the following:
-"exit": calls shell_exit to exit the shell
-"cd": calls handle_cd to change directory
-"env": calls print_env to display environment variables
-3-Returns 1 if a built-in command has been processed, 0 otherwise.
+ Implements built-in shell commands like exit, env, and cd.
 ```
 - **cd.c**
 ```
-This file implements the functionality of the shell's "cd" (change directory) command. The handle_cd function:
-1-Handles three main cases:
-"cd" without argument or "cd ~": changes to the home directory
-"cd -": changes to the previous directory
-"cd [path]": changes to the specified path
-2-Use getenv to get HOME and OLDPWD environment variables
-3-Use chdir to perform directory change
-4-Handle errors with perror on failure
+Implements the change directory (cd) command functionality.
 ```
 - **env.c**
 
 ```
-This file implements the functionality to display the shell's environment variables. The print_env function:
-1-Takes as input an array of strings representing the environment variables.
-2-Iterates through each environment variable in the array.
-3-For each variable:
-Calculates the length of the string
-Uses write to display the variable followed by a newline
-4-Uses write instead of printf, likely for performance reasons or more precise output control.
+Functions for handling environment variables, including getting and printing them.
 ```
 - **exec.c**
 
 ```
-This file implements the core command execution logic for the shell. It contains three main functions:
-1-execute_child:
-Executes the command in the child process using execve
-Handles errors and exits if execution fails
-2-handle_command_path:
-Resolves the full path of the command
-Handles both absolute/relative paths and commands in PATH
-3-execute_command:
-Main function for command execution
-Tokenizes the input
-Checks for built-in commands
-Resolves the command path
-Creates a child process using fork
-Executes the command in the child process
-Waits for the child process to complete in the parent process
+Contains functions for executing commands, including forking processes and handling command paths.
 ```
 - **exit.c**
 ```
-This file implements the exit functionality for the shell. It contains two main functions:
-1-handle_exit:
-Frees the input memory
-Exits the shell with the given status
-2-shell_exit:
-Handles the 'exit' command with or without an argument
-If an argument is provided:
-Checks if it's a valid number
-Converts the string argument to an integer exit status
-Calls handle_exit with the appropriate status
-Returns 1 to indicate the command was handled
+Functions for handling the exit command and exit status.
 ```
 - **input.c**
 ```
-This file implements the input reading functionality for the shell. The read_input function:
-1-Uses getline to read user input from stdin
-2-Dynamically allocates memory for the input buffer
-3-Handles EOF (Ctrl+D) by freeing the buffer and exiting the program
-4-Returns the input as a string
-Key points:
-Allows for variable-length input
-Automatically handles memory allocation
-Gracefully handles end-of-file condition
+Handles reading user input from the command line using getline.
 ```
 - **path.c**
 ```
-This file implements utility functions for handling file paths in the shell. It contains two main functions:
-1-concat_path:
-Concatenates a directory path and a command name
-Handles cases where the directory path doesn't end with a '/'
-Returns the full path or NULL on failure
-get_file_path:
-2-Finds the full path of a command in the system
-Checks if the command exists in the current directory
-Searches for the command in directories listed in the PATH environment variable
-Uses concat_path to build full paths for testing
-Returns the full path of the command if found, or NULL if not found
-Key points:
-Handles memory allocation and deallocation
-Uses custom string functions (_strlen, _strcpy, _strdup)
-Utilizes system calls (stat, access) to check file existence and permissi
+Handles finding command executables in the system PATH.
 ```
 - **print_error.c**
 ```
-This file implements an error reporting utility for the shell. The print_error function:
-1-Takes three parameters:
-program: The name of the shell program
-cmd: The command that caused the error
-msg: The error message to display
-2-Writes the error message to stderr (file descriptor 2) in the format:
-"[program]: 1: [cmd]: [msg]"
-3-Uses write system call instead of printf, likely for more direct control over output
-Key points:
-Formats error messages consistently
-Writes directly to stderr
-Uses loops to write each character, ensuring full message is output
+Functions for printing error messages to stderr.
 ```
 - **prompt.c**
 ```
-This file implements the prompt functionality for the shell. The print_prompt function:
-1-Checks if the input is coming from a terminal (interactive mode) using isatty()
-2-If in interactive mode, it writes the prompt "ValakShell$ " to the standard output
-Key points:
-Uses isatty() to determine if the shell is running in interactive mode
-Uses write() system call to output the prompt
-Only displays the prompt in interactive mode, not when processing scripts or piped input
+Handles displaying the shell prompt.
 ```
 - **shell.c**
 ```
-This file implements the main entry point and control loop for the shell. The main function:
-1-Runs an infinite loop to continuously accept and process commands
-2-Calls print_prompt() to display the shell prompt
-3-Uses read_input() to get user input
-4-Handles EOF (Ctrl+D) by exiting the shell
-5-Calls execute_command() to process and execute the input
-6-Frees the input buffer after each command execution
+Main function that runs the shell program. It displays the prompt, gets user input and processes commands.
 ```
 - **tokenize.c**
 ```
-This file implements the input tokenization functionality for the shell. The tokenize_input function:
-1-Takes two parameters:
-input: The raw input string from the user
-args: An array to store the tokenized arguments
-2-Uses strtok to split the input string into tokens
-Delimiters are space, tab, and newline characters
-3-Stores each token in the args array
-4-Terminates the args array with a NULL pointer
-5-Returns the number of tokens (arguments) found
+Functions for splitting command lines into tokens/words.
 ```
 - **utils.c**
 ```
-This file implements custom string manipulation functions for the shell. It contains three main functions:
-1-_strlen:
-Calculates the length of a string
-Returns the number of characters in the string (excluding null terminator)
-2-_strdup:
-Creates a duplicate of a given string
-Allocates new memory for the duplicate
-Returns a pointer to the new string or NULL if memory allocation fails
-3-_strcpy:
-Copies a source string to a destination buffer
-Ensures null-termination of the destination string
-Returns a pointer to the destination string
+Helper functions for string manipulation and memory management.
 ```
 ## Examples and Tests
 
