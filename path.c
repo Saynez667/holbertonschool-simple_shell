@@ -70,6 +70,9 @@ char *check_current_dir(char *command)
 {
 	struct stat st;
 
+	if (!command)
+		return (NULL);
+
 	if (stat(command, &st) == 0 && (st.st_mode & S_IXUSR))
 		return (_strdup(command));
 
@@ -85,9 +88,13 @@ char *check_current_dir(char *command)
  */
 char *search_path(char *command, char *path)
 {
-	char *path_copy, *dir, *full_path;
+	char *path_copy, *dir, *full_path = NULL;
 	struct stat st;
 
+	if (!command || !path)
+		return (NULL);
+
+	/* Make a copy of path since strtok modifies the string */
 	path_copy = _strdup(path);
 	if (!path_copy)
 		return (NULL);
@@ -96,14 +103,22 @@ char *search_path(char *command, char *path)
 	while (dir)
 	{
 		full_path = concat_path(dir, command);
-		if (full_path && stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
+		if (full_path)
 		{
-			free(path_copy);
-			return (full_path);
+			if (stat(full_path, &st) == 0)
+			{
+				if (st.st_mode & S_IXUSR)
+				{
+					free(path_copy);
+					return (full_path);
+				}
+			}
+			free(full_path);
+			full_path = NULL;
 		}
-		free(full_path);
 		dir = strtok(NULL, ":");
 	}
+
 	free(path_copy);
 	return (NULL);
 }
@@ -119,23 +134,22 @@ char *get_file_path(char *command, char **env)
 {
 	char *path, *full_path;
 
-	if (!command)
+	if (!command || !env)
 		return (NULL);
 
 	command = trim_spaces(command);
 	if (!command || *command == '\0')
 		return (NULL);
 
-	if (command[0] == '.' || command[0] == '/')
+	/* Check for commands with slash */
+	if (_strchr(command, '/') != NULL)
 		return (check_current_dir(command));
 
+	/* Get PATH and search for command */
 	path = _getenv("PATH", env);
-	if (!path)
-		return (check_current_dir(command));
+	if (!path || !*path)
+		return (NULL);
 
 	full_path = search_path(command, path);
-	if (full_path)
-		return (full_path);
-
-	return (check_current_dir(command));
+	return (full_path);
 }
