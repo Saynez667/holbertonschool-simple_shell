@@ -27,11 +27,11 @@ void free_tokens(char **args, int count);
 char *trim_token(char *token);
 
 /* Path Functions */
-char *get_file_path(char *command);
 char *search_path(char *command, char *path);
 char *check_current_dir(char *command);
 char *trim_spaces(char *command);
 char *concat_path(char *dir, char *command);
+char *get_file_path(char *command, char **env);
 
 /* String utility functions */
 int _strlen(char *str);
@@ -47,7 +47,6 @@ void print_error(char *program, char *cmd, char *msg);
 int handle_builtin_commands(char **args,
 		int num_args, char *input,
 		char **env);
-void handle_cd(char **args, int num_args);
 void handle_exit(char *input, int exit_status);
 int shell_exit(char **args, char *input);
 
@@ -62,5 +61,7 @@ void setup_signal_handlers(void);
 int handle_setenv(char **args, char *program_name);
 int handle_unsetenv(char **args, char *program_name);
 void print_env(char **env);
+char *_getenv(const char *name, char **env);
+void handle_cd(char **args, int num_args, char **env);
 
 #endif /* SHELL_H */

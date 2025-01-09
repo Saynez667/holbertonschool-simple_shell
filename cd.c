@@ -1,6 +1,6 @@
 #include "shell.h"
 
-#define MAX_PATH_LENGTH 4096  /* Définition d'une taille fixe de buffer */
+#define MAX_PATH_LENGTH 4096
 
 /**
  * update_pwd - Updates the PWD environment variable
@@ -85,17 +85,21 @@ int change_directory(const char *new_dir, char *current_dir)
  * handle_cd - Handles the cd command
  * @args: Array of command arguments
  * @num_args: Number of arguments
+ * @env: Environment variables
  */
-void handle_cd(char **args, int num_args)
+void handle_cd(char **args, int num_args, char **env)
 {
 	char current_dir[MAX_PATH_LENGTH];
 	const char *target_dir;
-	const char *home_dir = getenv("HOME");
-	const char *old_pwd = getenv("OLDPWD");
+	const char *home_dir;
+	const char *old_pwd;
 
 	/* Get and save current directory */
 	if (!get_current_dir(current_dir, sizeof(current_dir)))
 		return;
+
+	home_dir = _getenv("HOME", env);
+	old_pwd = _getenv("OLDPWD", env);
 
 	if (num_args == 1 || (num_args == 2 && strcmp(args[1], "~") == 0))
 	{
