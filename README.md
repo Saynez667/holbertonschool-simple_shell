@@ -4,7 +4,7 @@
 
 - [Project Overview](#Project-Overview)
 - [Requirements](#Requirements)
-  [Man Page](#Man-Page)
+- [Man Page](#Man-Page)
 - [Flowchart](#Flowchart)
 - [Documentation](#Documentation)
 - [Usage](#Usage)
