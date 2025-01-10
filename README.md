@@ -83,7 +83,8 @@ $ man ./man_page
 
 ## Flowchart
 ![flowchart simple shell ](https://github.com/user-attachments/assets/4b68c697-6787-46dd-b26d-001a1ebf7836)
-![Flowchart simple_shell](<iframe width="768" height="432" src="https://miro.com/app/live-embed/uXjVLvrjUGo=/?moveToViewport=-2445,29,6380,2357&embedId=525184395197" frameborder="0" scrolling="no" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>)
+![Flowchart Simple Shell](https://github.com/user-attachments/assets/f30884c1-9ec7-4bff-9856-a78bd0dfb6e2)
+
 ## Usage
 
 This will create a compilation file. You can run the shell in your terminal by using this command :
