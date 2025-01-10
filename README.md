@@ -82,7 +82,6 @@ $ man ./man_page
 ```
 
 ## Flowchart
-![flowchart simple shell ](https://github.com/user-attachments/assets/4b68c697-6787-46dd-b26d-001a1ebf7836)
 ![Flowchart Simple Shell](https://github.com/user-attachments/assets/f30884c1-9ec7-4bff-9856-a78bd0dfb6e2)
 
 ## Usage
