@@ -1,0 +1,97 @@
+.TH HSH 1 "January 2025" "Version 1.0" "HSH Manual Page"
+
+.SH NAME
+hsh \- command line interpreter (shell)
+
+.SH SYNOPSIS
+.B ./hsh
+[\fIcommand\fR]
+
+.SH DESCRIPTION
+.B ./hsh
+is a command line interpreter that provides a command line user interface for Unix-like operating systems. The shell accepts commands from the keyboard and executes them.
+
+.SH FEATURES
+.PP
+\- Interactive and non-interactive mode
+.PP
+\- Execute commands from the PATH
+.PP
+\- Handle command lines with arguments
+.PP
+\- Basic error handling
+.PP
+\- Built-in command implementation
+
+.SH BUILT-IN COMMANDS
+.TP
+.BR exit " [status]"
+Exits the shell with the specified status code. If no status is specified, the shell exits with the status of the last executed command.
+
+.TP
+.BR cd " [directory]"
+Changes the current working directory.
+.RS
+.PP
+Without arguments: changes to HOME directory
+.PP
+cd - : changes to previous directory (OLDPWD)
+.PP
+cd ~ : changes to HOME directory
+.RE
+
+.TP
+.BR env
+Displays the current environment variables.
+
+.SH EXAMPLES
+.PP
+Interactive mode:
+.PP
+.nf
+$ ./hsh
+$ ls -l
+$ pwd
+$ exit 98
+.fi
+
+.PP
+Non-interactive mode:
+.PP
+.nf
+$ echo "ls" | ./hsh
+.fi
+
+.SH ENVIRONMENT VARIABLES
+.TP
+.B PATH
+Used to locate executable files
+.TP
+.B HOME
+User's home directory
+.TP
+.B OLDPWD
+Previous working directory
+
+.SH EXIT STATUS
+.PP
+0      : Success
+.PP
+1      : General error
+.PP
+2      : Built-in command error
+.PP
+127    : Command not found
+
+.SH AUTHORS
+.PP
+Saynez667
+.PP
+Valak74200
+
+.SH COPYRIGHT
+Copyright © 2025 Holberton School. All rights reserved.
+
+.SH SEE ALSO
+.PP
+sh(1)
