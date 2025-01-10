@@ -16,6 +16,7 @@
 
 ## Project Overview
 
+
 This project consists of creating a simple shell in C, gradually implementing the essential functionalities of a UNIX command interpreter. 
 
 ## Requirements
@@ -82,6 +83,7 @@ $ man ./man_page
 
 ## Flowchart
 ![flowchart simple shell ](https://github.com/user-attachments/assets/4b68c697-6787-46dd-b26d-001a1ebf7836)
+![Flowchart simple_shell](https://github.com/user-attachments/assets/27fd55e1-1134-45e7-9a95-7aaceb15db19)
 ## Usage
 
 This will create a compilation file. You can run the shell in your terminal by using this command :
